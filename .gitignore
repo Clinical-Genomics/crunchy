@@ -50,6 +50,9 @@ dev/
 # SublimeText: workspace files are user-specific
 *.sublime-workspace
 
+# Textmate:
+.tm_properties
+
 # project files should be version controlled, unless a significant
 # proportion of contributors will probably not be using SublimeText
 # *.sublime-project
