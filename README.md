@@ -1,3 +1,4 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Build Status - GitHub](https://github.com/Clinical-Genomics/crunchy/workflows/Build/badge.svg)
 
 # Crunchy
