@@ -5,6 +5,31 @@
 
 A python wrapper around [spring][spring] to compress fastq and check the integrity.
 
+## Install
+
+```
+git clone https://github.com/Clinical-Genomics/crunchy
+pip install -e .
+crunchy --help
+Usage: crunchy [OPTIONS] COMMAND [ARGS]...
+
+  Base command for crunchy
+
+Options:
+  --spring-binary TEXT            Path to spring binary  [default: spring]
+  -t, --threads INTEGER           Number of threads to use for spring
+                                  compression  [default: 8]
+  --log-level [DEBUG|INFO|WARNING]
+                                  Choose what log messages to show
+  --help                          Show this message and exit.
+
+Commands:
+  auto        Recursively find all fastq pairs below a directory and spring...
+  checksum    Create a checksum for the file(s)
+  compress    Compress a file
+  decompress  Decompress a file
+```
+
 ## Workflow
 
 Each command can be run separately. To compress all fastq pairs below a directory run `crunchy auto <path_to_dir>`.
