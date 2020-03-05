@@ -1,23 +1,25 @@
+![Build Status - GitHub](https://github.com/Clinical-Genomics/crunchy/workflows/Build/badge.svg)
+
 # Crunchy
 
-A python wrapper around [spring][spring] to compress fastq.
+A python wrapper around [spring][spring] to compress fastq and check the integrity.
 
 ## Workflow
 
-### Step 1 Unzip fastq files
-`file_1.fastq.gz + file_2.fastq.gz` (gzip)-> `file_1.fastq + file_2.fastq`
+Each command can be run separately. To compress all fastq pairs below a directory run `crunchy auto <path_to_dir>`.
 
-### Step 2 Calculate md5 checksum
-`file_1.fastq + file_2.fastq` (hashlib)-> `md5_1, md5_2`
+1. **Recursively find all fastq pairs**
 
-### Step 3 Compress with spring
-`file_1.fastq + file_2.fastq` (spring)-> `file.spring`
+1. **Compress all pairs with spring**
+```file_1.fastq + file_2.fastq (spring)-> file.spring```
 
-### Step 4 Decompress with spring
-`file.spring` (spring)-> `file_1.fastq + file_2.fastq`
+1. **Decompress with spring**
+```file.spring (spring)-> file_1.fastq + file_2.fastq```
 
-### Step 4 Compare checksum with previous
-`file_1.fastq + file_2.fastq` (hashlib)-> `compare`
+1. **Compare checksum with previous**
+```file_1.fastq + file_2.fastq (hashlib)-> compare```
 
-### Step 5 Delete fastq
-`file_1.fastq + file_2.fastq` (rm)->
+1. **Delete fastq** (If the compression was lossless)
+```file_1.fastq + file_2.fastq (rm)->```
+
+[spring]: https://github.com/shubhamchandak94/Spring

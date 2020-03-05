@@ -10,6 +10,16 @@ from .command import SpringProcess
 LOG = logging.getLogger(__name__)
 
 
+def build_outpaths(filepath: pathlib.Path) -> tuple:
+    """Build a pair of fastq paths based on a file path"""
+    stem = filepath.stem
+    pair_str = str(filepath.with_suffix("")) + "_R{}_" + "001.fastq"
+    return (
+        pathlib.Path(stem, pair_str.format("1")),
+        pathlib.Path(stem, pair_str.format("2")),
+    )
+
+
 def decompress_gzip(filepath: pathlib.Path, outfile: str):
     """Decompress a gzipped file"""
     LOG.info("Decompress gzipped %s to %s", filepath, outfile)
@@ -44,8 +54,10 @@ def decompress(
 
     if ending in [".spring"]:
         if not outfile:
-            LOG.warning("Please provide output when decompressing spring")
-            raise SyntaxError
+            LOG.warning("No filenames provided. Guess outfiles")
+            fastqs = build_outpaths(filepath)
+            outfile = fastqs[0]
+            second = fastqs[1]
         decompress_spring(
             filepath=str(filepath),
             outfile=str(outfile),
