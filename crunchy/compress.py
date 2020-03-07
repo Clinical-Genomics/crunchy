@@ -1,62 +1,35 @@
 """Code to compress a pair of fastq files"""
 
-import gzip
 import logging
 import pathlib
-import shutil
 
 from .command import SpringProcess
+from .fastq import spring_outpath
 
 LOG = logging.getLogger(__name__)
 
 
-def compress_gzip(filepath: pathlib.Path, outfile: pathlib.Path):
-    """Compres a file tp gzip"""
-    LOG.info("Gzip %s to %s", filepath, outfile)
-    with open(filepath, "rb") as f_in:
-        with gzip.open(outfile, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-
-
-def compress_spring(
-    filepath: pathlib.Path,
-    outfile: str,
-    second: pathlib.Path = None,
-    spring_api: SpringProcess = None,
-):
-    """Compress a fastq file with spring"""
-    if second:
-        LOG.info("Compress files %s, %s with spring to %s", filepath, second, outfile)
-    else:
-        LOG.info("Compress file %s with spring to %s", filepath, outfile)
-    spring_api.compress(infile=filepath, second=second, outfile=outfile)
-
-
 def compress(
-    filepath: pathlib.Path,
-    second: pathlib.Path = None,
+    first: pathlib.Path,
+    second: pathlib.Path,
+    spring_api: SpringProcess,
     outfile: pathlib.Path = None,
-    spring_api: SpringProcess = None,
-):
+    dry_run: bool = False,
+) -> bool:
     """Compress file(s)"""
-    filepath = filepath.absolute()
-
-    if not spring_api:
-        if not outfile:
-            outfile = filepath.with_suffix(filepath.suffix + ".gz")
-        outfile = outfile.absolute()
-        if outfile.exists():
-            LOG.warning("Outfile %s already exists", outfile)
-            raise SyntaxError
-        compress_gzip(filepath, outfile)
-        return
+    first = first.absolute()
+    second = second.absolute()
 
     if not outfile:
-        LOG.warning("Please specify outfile when compressing with spring")
-        raise SyntaxError
+        LOG.warning("No spring outpath specified.")
+        outfile = spring_outpath(first)
 
     if outfile.exists():
-        LOG.warning("Outfile %s already exists", outfile)
-        raise SyntaxError
+        raise SyntaxError("Outfile {} already exists".format(outfile))
 
-    compress_spring(filepath, outfile, second, spring_api)
+    outfile = outfile.absolute()
+    LOG.info("Compressing %s and %s to %s", first, second, outfile)
+    if dry_run:
+        return True
+
+    return spring_api.compress(first=first, second=second, outfile=outfile)

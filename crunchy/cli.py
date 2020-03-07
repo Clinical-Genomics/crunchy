@@ -8,11 +8,23 @@ import coloredlogs
 from .command import SpringProcess
 from .compress import compress as compress_function
 from .decompress import decompress as decompress_function
+from .fastq import fastq_outpaths
 from .integrity import compare_elements, get_checksum
-from .utils import compress_and_delete
+from .utils import find_fastq_pairs
 
 LOG = logging.getLogger(__name__)
 LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
+
+
+def file_exists(file_path: pathlib.Path) -> bool:
+    """Check if a file exists.
+
+    If not raise a click.Abort("File <file_path> does not exist")
+    """
+    if not file_path.exists():
+        LOG.error("Could not find file %s", file_path)
+        raise click.Abort
+    return True
 
 
 @click.group()
@@ -32,13 +44,91 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
     type=click.Choice(LOG_LEVELS),
     help="Choose what log messages to show",
 )
+@click.option(
+    "--tmp-dir", help="If specific temp dir should be used",
+)
 @click.pass_context
-def base_command(ctx, spring_binary, threads, log_level):
+def base_command(ctx, spring_binary, threads, log_level, tmp_dir):
     """Base command for crunchy"""
     coloredlogs.install(level=log_level)
-    spring_api = SpringProcess(spring_binary, threads)
+    spring_api = SpringProcess(spring_binary, threads, tmp_dir)
     ctx.obj = {"spring_api": spring_api}
     LOG.info("Running crunchy")
+
+
+@click.command()
+@click.option(
+    "--first",
+    "-f",
+    type=click.Path(exists=True),
+    required=True,
+    help="First read in pair",
+)
+@click.option(
+    "--second",
+    "-s",
+    type=click.Path(exists=True),
+    required=True,
+    help="Second read in pair",
+)
+@click.option(
+    "--spring-path",
+    "-o",
+    type=click.Path(exists=False),
+    required=True,
+    help="Path to spring file",
+)
+@click.option("--dry-run", is_flag=True)
+@click.pass_context
+def compress(ctx, first, second, spring_path, dry_run):
+    """Compress a pair of fastq files with spring"""
+    LOG.info("Running compress")
+    spring_api = ctx.obj.get("spring_api")
+    first = pathlib.Path(first)
+    second = pathlib.Path(second)
+    outfile = pathlib.Path(spring_path)
+    try:
+        compress_function(
+            first=first,
+            second=second,
+            outfile=outfile,
+            spring_api=spring_api,
+            dry_run=dry_run,
+        )
+    except SyntaxError as err:
+        raise click.Abort(err)
+
+
+@click.command()
+@click.argument("spring-path", type=click.Path(exists=True))
+@click.option(
+    "--first", "-f", type=click.Path(exists=False), help="First read in pair",
+)
+@click.option(
+    "--second", "-s", type=click.Path(exists=False), help="Second read in pair",
+)
+@click.pass_context
+def decompress(ctx, spring_path, first, second):
+    """Decompress a file"""
+    LOG.info("Running decompress")
+    spring_api = ctx.obj.get("spring_api")
+    spring_path = pathlib.Path(spring_path)
+    file_exists(spring_path)
+    if not (first or second):
+        LOG.warning("No filenames provided. Guess outfiles")
+        fastqs = fastq_outpaths(spring_path)
+        first = fastqs[0]
+        second = fastqs[1]
+
+    first = pathlib.Path(first)
+    second = pathlib.Path(second)
+    if first.exists() or second.exists():
+        LOG.error("Outpath(s) already exists! Specify new with '-f', '-s'")
+        raise click.Abort()
+
+    decompress_function(
+        spring_path=spring_path, first=first, second=second, spring_api=spring_api
+    )
 
 
 @click.command()
@@ -48,94 +138,146 @@ def base_command(ctx, spring_binary, threads, log_level):
 )
 @click.option("--compare", "-c", is_flag=True)
 def checksum(infile, algorithm, compare):
-    """Create a checksum for the file(s)"""
+    """Create a checksum for the file(s) raise syntax error if two files differ."""
     LOG.info("Running checksum")
     checksums = []
     for _infile in infile:
-        checksums.append(get_checksum(pathlib.Path(_infile), algorithm))
+        _infile = pathlib.Path(_infile)
+        file_exists(_infile)
+        checksums.append(get_checksum(_infile, algorithm))
+
     if compare:
-        if compare_elements(checksums):
-            LOG.info("All checksums are the same")
-        else:
+        if not compare_elements(checksums):
             LOG.warning("All checksums are NOT the same")
+            raise click.Abort
+        LOG.info("All checksums are the same")
+
     for _checksum in checksums:
         click.echo(_checksum)
 
 
 @click.command()
-@click.argument("infile", type=click.Path(exists=True))
-@click.option("--outfile", "-o", type=click.Path(exists=False))
+@click.argument("spring-path", type=click.Path(exists=True))
+@click.option(
+    "--first",
+    "-f",
+    type=click.Path(exists=True),
+    help="First in fastq pair to compare",
+)
 @click.option(
     "--second",
     "-s",
     type=click.Path(exists=True),
-    help="If there are paired fastqs to unpack",
+    help="Second in fastq pair to compare",
 )
-@click.pass_context
-def decompress(ctx, infile, outfile, second):
-    """Decompress a file"""
-    LOG.info("Running decompress")
-    spring_api = ctx.obj.get("spring_api")
-    infile = pathlib.Path(infile)
-    if second:
-        second = pathlib.Path(second)
-    try:
-        decompress_function(
-            filepath=infile, second=second, outfile=outfile, spring_api=spring_api
-        )
-    except SyntaxError:
-        return
-
-
-@click.command()
-@click.argument("infile", type=click.Path(exists=True))
-@click.option("--compression", type=click.Choice(["gzip", "spring"]), default="spring")
 @click.option(
-    "--second", "-s", type=click.Path(exists=True), help="If there are paired fastqs"
+    "--dry-run", is_flag=True, help="Skip deleting original files",
 )
-@click.option("--outfile", "-o", type=click.Path(exists=False))
 @click.pass_context
-def compress(ctx, infile, compression, second, outfile):
-    """Compress a file"""
-    LOG.info("Running compress to format %s", compression)
-    infile = pathlib.Path(infile)
-    spring_api = None
-    if compression == "spring":
-        spring_api = ctx.obj.get("spring_api")
-    if second:
-        second = pathlib.Path(second)
-    if outfile:
-        outfile = pathlib.Path(outfile)
+def delete(ctx, spring_path, first, second, dry_run):
+    """Decompress a spring file and compare to original files. If they are identical keep only the
+    spring file"""
+    LOG.info("Running delete")
+
+    if not first:
+        LOG.info("No fastq paths provided. Guess based on spring name")
+        first, second = fastq_outpaths(pathlib.Path(spring_path))
+    else:
+        first = pathlib.Path(first)
+    file_exists(first)
+    file_exists(second)
+
+    first_spring = pathlib.Path(first).with_suffix(".spring.fastq")
+    second_spring = pathlib.Path(second).with_suffix(".spring.fastq")
+    ctx.invoke(
+        decompress,
+        spring_path=spring_path,
+        first=str(first_spring),
+        second=str(second_spring),
+    )
+
+    success = True
     try:
-        compress_function(
-            filepath=infile, second=second, outfile=outfile, spring_api=spring_api,
-        )
-    except SyntaxError:
-        return
+        ctx.invoke(checksum, str(first), str(first_spring), compare=True)
+        ctx.invoke(checksum, str(second), str(second_spring), compare=True)
+    except click.Abort:
+        LOG.error("Uncompressed spring differ from original fastqs")
+        success = False
+
+    if success:
+        LOG.info("Files are identical")
+        LOG.info("Removing original fastqs")
+        if not dry_run:
+            first.unlink()
+            LOG.info("%s deleted", first)
+            second.unlink()
+            LOG.info("%s deleted", second)
+
+    LOG.info("Deleting decompressed spring files")
+    first_spring.unlink()
+    LOG.info("%s deleted", first_spring)
+    second_spring.unlink()
+    LOG.info("%s deleted", second_spring)
 
 
 @click.command()
-@click.argument("indir", type=click.Path(exists=True))
+@click.option("--indir", type=click.Path(exists=True))
 @click.option("--dry-run", is_flag=True)
+@click.option("--spring-path", type=click.Path(exists=False))
+@click.option(
+    "--first",
+    "-f",
+    type=click.Path(exists=True),
+    help="First in fastq pair to compare",
+)
+@click.option(
+    "--second",
+    "-s",
+    type=click.Path(exists=True),
+    help="Second in fastq pair to compare",
+)
 @click.pass_context
-def auto(ctx, indir, dry_run):
-    """Recursively find all fastq pairs below a directory and spring compress them.
-    Uncompress, check it they are identical and finally remove original fastq files
+def auto(ctx, indir, spring_path, first, second, dry_run):
+    """Run whole pipeline by compressing, comparing and deleting original fastqs.
+    Either all fastq pairs below a directory or a given pair.
     """
+    LOG.info("Running auto")
     LOG.info(
-        "Running auto, this will recursively compress and delete all fastqs in given dir"
+        "Running auto, this will recursively compress and delete fastqs in given dir"
     )
-    indir = pathlib.Path(indir)
-    spring_api = ctx.obj["spring_api"]
+    if indir:
+        indir = pathlib.Path(indir)
+        if not indir.is_dir():
+            LOG.warning("Please specify a directory")
+            return
+        pairs = find_fastq_pairs(indir)
 
-    if not indir.is_dir():
-        LOG.warning("Please specify a directory")
-        return
+    else:
+        if not (first and second and spring_path):
+            LOG.warning(
+                "Please specify either a directory or two fastqs and a spring path"
+            )
+            return
+        pairs = [(pathlib.Path(first), pathlib.Path(second), pathlib.Path(spring_path))]
 
-    compress_and_delete(indir, spring_api)
+    for pair in pairs:
+        first_fastq = str(pair[0])
+        second_fastq = str(pair[1])
+        spring_path = str(pair[2])
+        ctx.invoke(
+            compress,
+            first=first_fastq,
+            second=second_fastq,
+            spring_path=spring_path,
+            dry_run=dry_run,
+        )
+        ctx.invoke(
+            delete, spring_path=spring_path, first=first, second=second, dry_run=dry_run
+        )
 
 
 base_command.add_command(checksum)
 base_command.add_command(decompress)
 base_command.add_command(compress)
+base_command.add_command(delete)
 base_command.add_command(auto)

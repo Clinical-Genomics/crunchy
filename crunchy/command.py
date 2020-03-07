@@ -101,34 +101,83 @@ class Process:
 class SpringProcess(Process):
     """Process to deal with spring commands"""
 
-    def __init__(self, binary, threads=8):
+    def __init__(self, binary, threads=8, tmp_dir=None):
         """Initialise a spring process"""
         super().__init__(binary)
         self.threads = threads
+        self.tmp = tmp_dir
 
-    def decompress(self, infile: str, outfile: str, second: str = None):
+    def decompress(self, spring_path: str, first: str, second: str) -> bool:
         """Run the spring decompress command"""
-        parameters = ["-d", "-i", infile, "-o", outfile]
-        if second:
-            parameters.append(second)
+        parameters = ["-d", "-i", spring_path, "-o", first, second]
+        if first.endswith(".gz"):
+            LOG.info("Compressing to gzipped format")
+            parameters.append("-g")
+
+        if self.tmp is not None:
+            parameters.extend(["--working-dir", self.tmp])
+
         LOG.info("Decompressing spring compressed file")
         self.run_command(parameters)
+        success = False
+        time_to_decompress = "unknown"
+        for line in self.stdout_lines():
+            line = line.lower()
+            if "decompression done" in line:
+                success = True
+            if "total time for decompression" in line:
+                time_to_compress = line.split(" ")[-2]
+
+        if success:
+            LOG.info("Spring decompression succesfully completed!")
+            LOG.info("Time to decompress: %s", time_to_decompress)
+            return True
+
+        LOG.error("Spring decompression failed")
+        LOG.error(self.stderr)
+        return False
 
     def compress(
-        self, infile: pathlib.Path, outfile: pathlib.Path, second: pathlib.Path = None,
-    ):
+        self, first: pathlib.Path, second: pathlib.Path, outfile: pathlib.Path
+    ) -> bool:
         """Run the spring compression command"""
-        parameters = ["-c", "-i", str(infile)]
-        if second:
-            parameters.append(str(second))
-        parameters.extend(["-o", str(outfile), "-t", str(self.threads)])
+        parameters = [
+            "-c",
+            "-i",
+            str(first),
+            str(second),
+            "-o",
+            str(outfile),
+            "-t",
+            str(self.threads),
+        ]
 
-        if infile.suffix == ".gz":
+        if first.suffix == ".gz":
             LOG.info("File(s) are gzipped")
             parameters.append("-g")
 
+        if self.tmp is not None:
+            parameters.extend(["--working-dir", self.tmp])
+
         LOG.info("Compressing fastq to spring")
         self.run_command(parameters)
+        success = False
+        time_to_compress = "unknown"
+        for line in self.stdout_lines():
+            line = line.lower()
+            if "compression done" in line:
+                success = True
+            if "total time for compression" in line:
+                time_to_compress = line.split(" ")[-2]
+
+        if success:
+            LOG.info("Spring compression succesfully completed!")
+            LOG.info("Time to compress: %s", time_to_compress)
+            return True
+
+        LOG.error("Spring compression failed")
+        LOG.error(self.stderr)
+        return False
 
     def __repr__(self):
         return f"SpringProcess:base_call:{self.base_call}"
