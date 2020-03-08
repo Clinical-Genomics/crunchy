@@ -3,8 +3,10 @@ on: [push, pull_request]
 
 jobs:
   build:
+    name: Test Crunchy (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ubuntu-latest    
     strategy:
+      fail-fast: false
       matrix:
         python-version: [3.6, 3.7, 3.8]
   
@@ -20,12 +22,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     # Need to add shell to make conda environments work
-    - name: Set up Python ${{ matrix.python-version}}
-      uses: actions/setup-python@v1
-      shell: bash -l {0}
-      with:
-        python-version: ${{ matrix.python-version}}
-
     - name: Install spring
       shell: bash -l {0}
       run: |
