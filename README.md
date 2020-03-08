@@ -1,5 +1,6 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Build Status - GitHub](https://github.com/Clinical-Genomics/crunchy/workflows/Build/badge.svg)
+[![codecov](https://codecov.io/gh/Clinical-Genomics/crunchy/branch/master/graph/badge.svg)](https://codecov.io/gh/Clinical-Genomics/crunchy)
 
 # Crunchy
 
