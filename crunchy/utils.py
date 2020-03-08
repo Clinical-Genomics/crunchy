@@ -34,6 +34,11 @@ def find_fastq_pairs(directory: pathlib.Path) -> list:
         if pth in reads_found:
             LOG.debug("Read already found: %s", pth)
             continue
+        if len(splitted) < 3:
+            LOG.info(
+                "Fastq filename %s does not follow illumina conventions", file_name
+            )
+            continue
         # Check if we have a part of a read pair
         spring_name = pathlib.Path("_".join(splitted[:-2]))
         if splitted[-2] in ["R1", "R2"]:

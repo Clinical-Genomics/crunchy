@@ -96,7 +96,8 @@ def compress(ctx, first, second, spring_path, dry_run):
             dry_run=dry_run,
         )
     except SyntaxError as err:
-        raise click.Abort(err)
+        LOG.error(err)
+        raise click.Abort
 
 
 @click.command()
@@ -107,13 +108,23 @@ def compress(ctx, first, second, spring_path, dry_run):
 @click.option(
     "--second", "-s", type=click.Path(exists=False), help="Second read in pair",
 )
+@click.option(
+    "--dry-run", is_flag=True, help="Skip deleting original files",
+)
 @click.pass_context
-def decompress(ctx, spring_path, first, second):
+def decompress(ctx, spring_path, first, second, dry_run):
     """Decompress a file"""
     LOG.info("Running decompress")
     spring_api = ctx.obj.get("spring_api")
     spring_path = pathlib.Path(spring_path)
-    file_exists(spring_path)
+    try:
+        file_exists(spring_path)
+    except click.Abort as err:
+        if dry_run:
+            LOG.warning("Dry run! Continue")
+        else:
+            raise err
+
     if not (first or second):
         LOG.warning("No filenames provided. Guess outfiles")
         fastqs = fastq_outpaths(spring_path)
@@ -127,7 +138,11 @@ def decompress(ctx, spring_path, first, second):
         raise click.Abort()
 
     decompress_function(
-        spring_path=spring_path, first=first, second=second, spring_api=spring_api
+        spring_path=spring_path,
+        first=first,
+        second=second,
+        spring_api=spring_api,
+        dry_run=dry_run,
     )
 
 
@@ -194,6 +209,7 @@ def delete(ctx, spring_path, first, second, dry_run):
         spring_path=spring_path,
         first=str(first_spring),
         second=str(second_spring),
+        dry_run=dry_run,
     )
 
     success = True
@@ -241,11 +257,11 @@ def auto(ctx, indir, spring_path, first, second, dry_run):
     """Run whole pipeline by compressing, comparing and deleting original fastqs.
     Either all fastq pairs below a directory or a given pair.
     """
-    LOG.info("Running auto")
-    LOG.info(
-        "Running auto, this will recursively compress and delete fastqs in given dir"
-    )
     if indir:
+        LOG.info(
+            "Running auto, this will recursively compress and delete fastqs in %s",
+            indir,
+        )
         indir = pathlib.Path(indir)
         if not indir.is_dir():
             LOG.warning("Please specify a directory")
@@ -258,22 +274,36 @@ def auto(ctx, indir, spring_path, first, second, dry_run):
                 "Please specify either a directory or two fastqs and a spring path"
             )
             return
+        LOG.info(
+            "Running auto, this will recursively compress and delete fastqs %s, %s",
+            first,
+            second,
+        )
+
         pairs = [(pathlib.Path(first), pathlib.Path(second), pathlib.Path(spring_path))]
 
     for pair in pairs:
         first_fastq = str(pair[0])
         second_fastq = str(pair[1])
         spring_path = str(pair[2])
-        ctx.invoke(
-            compress,
-            first=first_fastq,
-            second=second_fastq,
-            spring_path=spring_path,
-            dry_run=dry_run,
-        )
-        ctx.invoke(
-            delete, spring_path=spring_path, first=first, second=second, dry_run=dry_run
-        )
+        try:
+            ctx.invoke(
+                compress,
+                first=first_fastq,
+                second=second_fastq,
+                spring_path=spring_path,
+                dry_run=dry_run,
+            )
+            ctx.invoke(
+                delete,
+                spring_path=spring_path,
+                first=first,
+                second=second,
+                dry_run=dry_run,
+            )
+        except click.Abort:
+            LOG.warning("Skip current and continue auto")
+            continue
 
 
 base_command.add_command(checksum)
