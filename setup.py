@@ -10,7 +10,7 @@ NAME = "crunchy"
 DESCRIPTION = "Compress fastq with spring"
 URL = "https://github.com/Clinical-Genomics/crunchy"
 EMAIL = "mans.magnusson@scilifelab.com"
-AUTHOR = "Måns Magnusson"
+AUTHOR = "Mans Magnusson"
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = 0.1
 
