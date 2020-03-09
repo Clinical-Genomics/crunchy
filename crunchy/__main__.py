@@ -9,7 +9,7 @@ or ``python -m crunchy`` (no install required).
 """
 import sys
 
-from crunchy.cli import base_command
+from crunchy.cli.base import base_command
 
 if __name__ == "__main__":
     # exit using whatever exit code the CLI returned
