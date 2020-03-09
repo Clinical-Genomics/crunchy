@@ -42,6 +42,13 @@ jobs:
         pip install pytest-cov
         pytest --cov=crunchy/ --cov-report=xml tests/
     
+    - name: Conda list
+      shell: bash -l {0}
+      run: |
+        conda list
+        pwd
+        ls /usr/share/miniconda/envs/test
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
