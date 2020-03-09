@@ -38,18 +38,11 @@ jobs:
     - name: Generate coverage report
       shell: bash -l {0}
       run: |
+        pip install --editable .
         pip install pytest
-        pip install "pytest-cov==4.4.2"
+        pip install pytest-cov
         pytest --cov=crunchy/ --cov-report=xml tests/
-        readlink -f coverage.xml
     
-    - name: Conda list
-      shell: bash -l {0}
-      run: |
-        conda list
-        pwd
-        ls /usr/share/miniconda/envs/test
-
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
