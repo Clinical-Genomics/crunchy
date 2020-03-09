@@ -38,7 +38,6 @@ jobs:
     - name: Generate coverage report
       shell: bash -l {0}
       run: |
-        pip install --editable .
         pip install pytest
         pip install pytest-cov
         pytest --cov=crunchy/ --cov-report=xml tests/
