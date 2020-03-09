@@ -39,7 +39,7 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install pytest
-        pip install pytest-cov
+        pip install "pytest-cov==4.4.2"
         pytest --cov=crunchy/ --cov-report=xml tests/
         readlink -f coverage.xml
     
