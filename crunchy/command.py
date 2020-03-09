@@ -126,7 +126,7 @@ class SpringProcess(Process):
             if "decompression done" in line:
                 success = True
             if "total time for decompression" in line:
-                time_to_compress = line.split(" ")[-2]
+                time_to_decompress = line.split(" ")[-2]
 
         if success:
             LOG.info("Spring decompression succesfully completed!")
@@ -178,6 +178,59 @@ class SpringProcess(Process):
         LOG.error("Spring compression failed")
         LOG.error(self.stderr)
         return False
+
+    def __repr__(self):
+        return f"SpringProcess:base_call:{self.base_call}"
+
+
+class CramProcess(Process):
+    """Process to deal with cram commands"""
+
+    def __init__(self, binary, refgenome_path, threads=8):
+        """Initialise a spring process"""
+        super().__init__(binary)
+        self.refgenome_path = refgenome_path
+        self.threads = threads
+
+    def decompress(self, cram_path: str, bam_path: str) -> bool:
+        """Convert cram to bam"""
+        LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
+        parameters = [
+            "view",
+            "-b",
+            "-o",
+            bam_path,
+            "-r",
+            self.refgenome_path,
+            cram_path,
+        ]
+        self.run_command(parameters)
+        return True
+
+    def compress(self, bam_path: str, cram_path: str) -> bool:
+        """Convert bam to cram"""
+        LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
+        parameters = [
+            "view",
+            "-c",
+            "-o",
+            cram_path,
+            "-r",
+            self.refgenome_path,
+            bam_path,
+        ]
+        self.run_command(parameters)
+        self.index(cram_path)
+        return True
+
+    def index(self, file_path: str):
+        """Index a bam or cram file"""
+        LOG.info("Creating index for %s", file_path)
+        index_type = ".cram"
+        if file_path.endswith(".bam"):
+            index_type = ".bai"
+        parameters = ["index", file_path, ".".join([file_path, index_type])]
+        self.run_command(parameters)
 
     def __repr__(self):
         return f"SpringProcess:base_call:{self.base_call}"

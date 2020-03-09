@@ -6,6 +6,13 @@ import pathlib
 LOG = logging.getLogger(__name__)
 
 
+def cram_outpath(bam_path: pathlib.Path) -> pathlib.Path:
+    """Build a bam path based on a cram path"""
+    LOG.info("Create cram path from %s", bam_path)
+    file_name = bam_path.with_suffix("")
+    return file_name.with_suffix(".cram")
+
+
 def fastq_outpaths(filepath: pathlib.Path) -> tuple:
     """Build a pair of fastq paths based on a file path"""
     LOG.info("Create fastq paths from %s", filepath)

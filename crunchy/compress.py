@@ -33,3 +33,20 @@ def compress_spring(
         return True
 
     return spring_api.compress(first=first, second=second, outfile=outfile)
+
+
+def compress_cram(
+    bam_path: pathlib.Path,
+    cram_path: pathlib.Path,
+    cram_api: SpringProcess,
+    dry_run: bool = False,
+) -> bool:
+    """Compress bam file"""
+    bam_path = bam_path.absolute()
+    cram_path = cram_path.absolute()
+
+    LOG.info("Compressing %s to %s", bam_path, cram_path)
+    if dry_run:
+        return True
+
+    return cram_api.compress(bam_path=str(bam_path), cram_path=str(cram_path))
