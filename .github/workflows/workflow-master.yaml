@@ -41,6 +41,7 @@ jobs:
         pip install pytest
         pip install pytest-cov
         pytest --cov=crunchy/ --cov-report=xml tests/
+        readlink -f coverage.xml
     
     - name: Conda list
       shell: bash -l {0}
