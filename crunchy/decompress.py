@@ -8,7 +8,7 @@ from .command import SpringProcess
 LOG = logging.getLogger(__name__)
 
 
-def decompress(
+def decompress_spring(
     spring_path: pathlib.Path,
     first: pathlib.Path,
     second: pathlib.Path,

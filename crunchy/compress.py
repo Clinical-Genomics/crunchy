@@ -4,12 +4,12 @@ import logging
 import pathlib
 
 from .command import SpringProcess
-from .fastq import spring_outpath
+from .files import spring_outpath
 
 LOG = logging.getLogger(__name__)
 
 
-def compress(
+def compress_spring(
     first: pathlib.Path,
     second: pathlib.Path,
     spring_api: SpringProcess,

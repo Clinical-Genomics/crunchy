@@ -1,21 +1,21 @@
 """Tests for decompress functions"""
 
-from crunchy.decompress import decompress
-from crunchy.fastq import fastq_outpaths, spring_outpath
+from crunchy.decompress import decompress_spring
+from crunchy.files import fastq_outpaths, spring_outpath
 
 
-def test_decompress(first_read, second_read, spring_api):
+def test_decompress_spring(first_read, second_read, spring_api):
     """Test top decompress compressed file"""
     # GIVEN a compressed file and a outfile
     spring_api.decompress_success = True
     spring_path = spring_outpath(first_read)
     # WHEN decompressing
-    res = decompress(spring_path, first_read, second_read, spring_api)
+    res = decompress_spring(spring_path, first_read, second_read, spring_api)
     # THEN assert that a syntax error is raised since the file os not compressed
     assert res is True
 
 
-def test_decompress_real(spring_tmp, real_spring_api):
+def test_decompress_spring_real(spring_tmp, real_spring_api):
     """Test decompress a real spring file"""
     # GIVEN a spring file, a spring api and two paths to fastq files that does not exist
     assert spring_tmp.exists()
@@ -28,8 +28,9 @@ def test_decompress_real(spring_tmp, real_spring_api):
     assert not second_read.exists()
 
     # WHEN decompressing the spring file to the fastq files
-    res = decompress(spring_tmp, first_read, second_read, spring_api)
+    res = decompress_spring(spring_tmp, first_read, second_read, spring_api)
 
     # THEN assert that the fastq files have been created
+    assert res is True
     assert first_read.exists()
     assert second_read.exists()
