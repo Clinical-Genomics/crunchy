@@ -5,83 +5,7 @@ import pathlib
 
 import pytest
 
-from crunchy.command import SpringProcess
-
 LOG = logging.getLogger(__name__)
-
-
-class MockSpringProcess(SpringProcess):
-    """Mock the Spring API"""
-
-    def __init__(self, binary="spring", threads=8, tmp_dir=None):
-        """docstring for __init__"""
-        super().__init__(binary, threads, tmp_dir)
-        self.compress_success = None
-        self.decompress_success = None
-
-    def run_command(self, parameters=None):
-        """Mock out the run command functionality"""
-        LOG.info("Running command %s", " ".join(parameters))
-        if self.compress_success is True:
-            self.stdout = "Compression done!\ntotal time for compression: 4 s\n"
-        if self.decompress_success is True:
-            self.stdout = "Decompression done!\ntotal time for decompression: 4 s\n"
-        return True
-
-
-class MockCramProcess:
-    """Mock the Spring API"""
-
-    def __init__(self, binary="samtools", refgenome_path="genome.fasta", threads=8):
-        """Initialize a CramProcessMock"""
-        self.binary = binary
-        self.refgenome_path = refgenome_path
-        self.threads = threads
-        self.base_call = [self.binary]
-        self.stdout = ""
-        self.stderr = ""
-
-    def run_command(self, parameters=None):
-        """Execute a command in the shell
-
-        Args:
-            parameters(list)
-        """
-        command = copy.deepcopy(self.base_call)
-        if parameters:
-            command.extend(parameters)
-
-        LOG.info("Running command %s", " ".join(command))
-
-        return 0
-
-    def decompress(self, cram_path: str, bam_path: str) -> bool:
-        """Convert cram to bam"""
-        LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
-        parameters = [
-            "view",
-            "-b",
-            "-o",
-            bam_path,
-            "-r",
-            self.refgenome_path,
-            cram_path,
-        ]
-        return self.run_command(parameters)
-
-    def compress(self, parameters=None):
-        """Mock out the run compress functionality"""
-        LOG.info("Running command %s", " ".join(parameters))
-        return self.run_command(parameters)
-
-    def index(self, file_path: str):
-        """Index a bam or cram file"""
-        LOG.info("Creating index for %s", file_path)
-        index_type = ".cram"
-        if file_path.endswith(".bam"):
-            index_type = ".bai"
-        parameters = ["index", file_path, ".".join([file_path, index_type])]
-        return self.run_command(parameters)
 
 
 @pytest.fixture(name="fixtures_dir")
@@ -153,4 +77,113 @@ def spring_api():
 @pytest.fixture
 def cram_api():
     """Return a mocked spring api"""
-    return MockSpringProcess("spring", threads=8)
+    return MockCramProcess("samtools", threads=8)
+
+
+class MockSpringProcess:
+    """Mock the Spring API"""
+
+    def __init__(self, binary="spring", threads=8, tmp_dir=None):
+        """docstring for __init__"""
+        self.binary = binary
+        self.threads = threads
+        self.base_call = [self.binary]
+        self.stdout = ""
+        self.stderr = ""
+        self.compress_success = None
+        self.decompress_success = None
+
+    def run_command(self, parameters=None):
+        """Mock out the run command functionality"""
+        LOG.info("Running command %s", " ".join(parameters))
+        if self.compress_success is True:
+            self.stdout = "Compression done!\ntotal time for compression: 4 s\n"
+        if self.decompress_success is True:
+            self.stdout = "Decompression done!\ntotal time for decompression: 4 s\n"
+        return True
+
+    def stdout_lines(self):
+        """Iterate over the lines in self.stdout"""
+        for line in self.stdout.split("\n"):
+            yield line
+
+    def stderr_lines(self):
+        """Iterate over the lines in self.stderr"""
+        for line in self.stderr.split("\n"):
+            yield line
+
+    def decompress(self, spring_path: str, first: str, second: str) -> bool:
+        """Run the spring decompress command"""
+        return True
+
+    def compress(
+        self, first: pathlib.Path, second: pathlib.Path, outfile: pathlib.Path
+    ) -> bool:
+        """Run the spring compression command"""
+        return True
+
+
+class MockCramProcess:
+    """Mock the Spring API"""
+
+    def __init__(self, binary="samtools", refgenome_path="genome.fasta", threads=8):
+        """Initialize a CramProcessMock"""
+        self.binary = binary
+        self.refgenome_path = refgenome_path
+        self.threads = threads
+        self.base_call = [self.binary]
+        self.stdout = ""
+        self.stderr = ""
+
+    def run_command(self, parameters=None):
+        """Execute a command in the shell
+
+        Args:
+            parameters(list)
+        """
+        command = copy.deepcopy(self.base_call)
+        if parameters:
+            command.extend(parameters)
+
+        LOG.info("Running command %s", " ".join(command))
+
+        return 0
+
+    def decompress(self, cram_path: str, bam_path: str) -> bool:
+        """Convert cram to bam"""
+        LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
+        parameters = [
+            "view",
+            "-b",
+            "-o",
+            bam_path,
+            "-r",
+            self.refgenome_path,
+            cram_path,
+        ]
+        return self.run_command(parameters)
+
+    def compress(self, bam_path: str, cram_path: str) -> bool:
+        """Convert bam to cram"""
+        LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
+        parameters = [
+            "view",
+            "-C",
+            "-T",
+            self.refgenome_path,
+            bam_path,
+            "-o",
+            cram_path,
+        ]
+        self.run_command(parameters)
+        self.index(cram_path)
+        return True
+
+    def index(self, file_path: str):
+        """Index a bam or cram file"""
+        LOG.info("Creating index for %s", file_path)
+        index_type = ".cram"
+        if file_path.endswith(".bam"):
+            index_type = ".bai"
+        parameters = ["index", file_path, ".".join([file_path, index_type])]
+        return self.run_command(parameters)

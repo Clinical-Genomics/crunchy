@@ -14,4 +14,5 @@ def test_compress_cram(base_context, bam_path):
         base_command, ["compress", "cram", "--bam-path", bam_path], obj=base_context
     )
     # THEN assert the command was succesful
+    print(result.__dict__)
     assert result.exit_code == 0
