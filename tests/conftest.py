@@ -165,10 +165,11 @@ class MockCramProcess:
             "-o",
             str(bam_path),
             "-r",
-            str(self.refgenome_path),
-            cram_path,
+            self.refgenome_path,
+            str(cram_path),
         ]
-        return self.run_command(parameters)
+        self.run_command(parameters)
+        return True
 
     def compress(self, bam_path: pathlib.Path, cram_path: pathlib.Path) -> bool:
         """Convert bam to cram"""
@@ -194,4 +195,5 @@ class MockCramProcess:
             index_type = ".bai"
         index_path = file_path.with_suffix(file_path.suffix + index_type)
         parameters = ["index", str(file_path), str(index_path)]
-        return self.run_command(parameters)
+        self.run_command(parameters)
+        return True
