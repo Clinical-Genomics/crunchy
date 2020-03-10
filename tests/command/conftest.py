@@ -31,13 +31,6 @@ def cram_tmp_file(cram_path, cram_tmp_path):
     return cram_tmp_path
 
 
-@pytest.fixture(name="spring_tmp_path")
-def fixture_spring_tmp_path(spring_path, tmp_path):
-    """Return the path to a nonexisting temporary spring file"""
-    _spring_tmp = tmp_path / spring_path.name
-    return _spring_tmp
-
-
 @pytest.fixture(name="spring_tmp_file")
 def fixture_spring_tmp_file(spring_tmp_path, spring_path):
     """Return the path to a temporary spring file"""

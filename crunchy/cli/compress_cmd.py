@@ -57,17 +57,13 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
         outfile = pathlib.Path(spring_path)
     file_exists(outfile, exists=False)
 
-    try:
-        compress_spring(
-            first=first,
-            second=second,
-            outfile=outfile,
-            spring_api=spring_api,
-            dry_run=dry_run,
-        )
-    except SyntaxError as err:
-        LOG.error(err)
-        raise click.Abort
+    compress_spring(
+        first=first,
+        second=second,
+        outfile=outfile,
+        spring_api=spring_api,
+        dry_run=dry_run,
+    )
 
     if not check_integrity:
         return
@@ -85,7 +81,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 
     success = True
     try:
-        ctx.invode(compare, first=str(first), second=str(first_spring))
+        ctx.invoke(compare, first=str(first), second=str(first_spring))
         ctx.invoke(compare, first=str(second), second=str(second_spring))
     except click.Abort:
         LOG.error("Uncompressed spring differ from original fastqs")

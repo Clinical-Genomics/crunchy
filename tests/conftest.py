@@ -68,6 +68,13 @@ def fixture_spring_path(fixtures_dir):
     return _file_path
 
 
+@pytest.fixture(name="spring_tmp_path")
+def fixture_spring_tmp_path(spring_path, tmp_path):
+    """Return the path to a nonexisting temporary spring file"""
+    _spring_tmp = tmp_path / spring_path.name
+    return _spring_tmp
+
+
 @pytest.fixture(name="bam_tmp_path")
 def fixture_bam_tmp_path(bam_path, tmp_path):
     """Return the path to a nonexisting small bam file"""
