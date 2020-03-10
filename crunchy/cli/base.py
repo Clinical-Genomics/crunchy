@@ -33,7 +33,7 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
     help="Number of threads to use for spring compression",
 )
 @click.option(
-    "--ref-genome", "-r", help="Path to reference genome",
+    "--reference", "-r", help="Path to reference genome",
 )
 @click.option(
     "--log-level",
@@ -46,13 +46,13 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
 )
 @click.pass_context
 def base_command(
-    ctx, spring_binary, samtools_binary, threads, ref_genome, log_level, tmp_dir
+    ctx, spring_binary, samtools_binary, threads, reference, log_level, tmp_dir
 ):
     """Base command for crunchy"""
     coloredlogs.install(level=log_level)
     spring_api = SpringProcess(spring_binary, threads, tmp_dir)
     ctx.obj = {"spring_api": spring_api}
-    cram_api = CramProcess(samtools_binary, ref_genome, threads)
+    cram_api = CramProcess(samtools_binary, reference, threads)
     LOG.info("Running crunchy")
 
 

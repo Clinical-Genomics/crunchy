@@ -9,6 +9,7 @@ from crunchy.files import cram_outpath
 
 from .compare_cmd import compare
 from .decompress_cmd import spring as decompress_spring_cmd
+from .utils import file_exists
 
 LOG = logging.getLogger(__name__)
 
@@ -111,7 +112,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
     help="Path to bam file",
 )
 @click.option(
-    "--cram-path", "-c", type=click.Path(exists=False), help="Path to cram file",
+    "--cram-path", "-c", help="Path to cram file",
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
@@ -124,6 +125,7 @@ def cram(ctx, bam_path, cram_path, dry_run):
         cram_path = cram_outpath(bam_path)
     else:
         cram_path = pathlib.Path(cram_path)
+    file_exists(cram_path, exists=False)
     try:
         compress_cram(
             bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,

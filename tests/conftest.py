@@ -2,6 +2,7 @@
 import copy
 import logging
 import pathlib
+import shutil
 
 import pytest
 
@@ -68,14 +69,28 @@ def fixture_spring_path(fixtures_dir):
     return _file_path
 
 
+@pytest.fixture(name="bam_tmp_path")
+def fixture_bam_tmp_path(bam_path, tmp_path):
+    """Return the path to a nonexisting small bam file"""
+    _file_path = tmp_path / bam_path.name
+    return _file_path
+
+
 @pytest.fixture
-def spring_api():
+def bam_tmp_file(bam_path, bam_tmp_path):
+    """Return the path to a temporary small bam file"""
+    shutil.copy(str(bam_path), str(bam_tmp_path))
+    return bam_tmp_path
+
+
+@pytest.fixture(name="spring_api")
+def fixture_spring_api():
     """Return a mocked spring api"""
     return MockSpringProcess("spring", threads=8)
 
 
-@pytest.fixture
-def cram_api():
+@pytest.fixture(name="cram_api")
+def fixture_cram_api():
     """Return a mocked spring api"""
     return MockCramProcess("samtools", threads=8)
 
@@ -92,6 +107,7 @@ class MockSpringProcess:
         self.stderr = ""
         self.compress_success = None
         self.decompress_success = None
+        self.tmp = tmp_dir or "./tmp"
 
     def run_command(self, parameters=None):
         """Mock out the run command functionality"""
@@ -114,13 +130,41 @@ class MockSpringProcess:
 
     def decompress(self, spring_path: str, first: str, second: str) -> bool:
         """Run the spring decompress command"""
-        return True
+        parameters = ["-d", "-i", spring_path, "-o", first, second]
+        if first.endswith(".gz"):
+            LOG.info("Compressing to gzipped format")
+            parameters.append("-g")
+
+        if self.tmp is not None:
+            parameters.extend(["--working-dir", self.tmp])
+
+        LOG.info("Decompressing spring compressed file")
+        return self.run_command(parameters)
 
     def compress(
         self, first: pathlib.Path, second: pathlib.Path, outfile: pathlib.Path
     ) -> bool:
         """Run the spring compression command"""
-        return True
+        parameters = [
+            "-c",
+            "-i",
+            str(first),
+            str(second),
+            "-o",
+            str(outfile),
+            "-t",
+            str(self.threads),
+        ]
+
+        if first.endswith(".gz"):
+            LOG.info("File(s) are gzipped")
+            parameters.append("-g")
+
+        if self.tmp is not None:
+            parameters.extend(["--working-dir", self.tmp])
+
+        LOG.info("Compressing fastq to spring")
+        return self.run_command(parameters)
 
 
 class MockCramProcess:

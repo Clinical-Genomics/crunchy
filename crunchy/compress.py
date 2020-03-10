@@ -3,7 +3,7 @@
 import logging
 import pathlib
 
-from .command import SpringProcess
+from .command import CramProcess, SpringProcess
 from .files import spring_outpath
 
 LOG = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def compress_spring(
 def compress_cram(
     bam_path: pathlib.Path,
     cram_path: pathlib.Path,
-    cram_api: SpringProcess,
+    cram_api: CramProcess,
     dry_run: bool = False,
 ) -> bool:
     """Compress bam file"""

@@ -10,20 +10,6 @@ from crunchy.command import CramProcess, SpringProcess
 LOG = logging.getLogger(__name__)
 
 
-@pytest.fixture(name="bam_tmp_path")
-def fixture_bam_tmp_path(bam_path, tmp_path):
-    """Return the path to a nonexisting small bam file"""
-    _file_path = tmp_path / bam_path.name
-    return _file_path
-
-
-@pytest.fixture
-def bam_tmp_file(bam_path, bam_tmp_path):
-    """Return the path to a temporary small bam file"""
-    shutil.copy(str(bam_path), str(bam_tmp_path))
-    return bam_tmp_path
-
-
 @pytest.fixture(name="cram_tmp_path")
 def fixture_cram_tmp_path(cram_path, tmp_path):
     """Return the path to a nonexisting temporary cram file"""
