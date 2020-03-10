@@ -212,24 +212,30 @@ class CramProcess(Process):
         LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
         parameters = [
             "view",
-            "-c",
-            "-o",
-            cram_path,
-            "-r",
+            "-C",
+            "-T",
             self.refgenome_path,
             bam_path,
+            "-o",
+            cram_path,
         ]
         self.run_command(parameters)
         self.index(cram_path)
         return True
 
+    @staticmethod
+    def get_index_path(file_path: str) -> str:
+        """Create a index path based on a file name"""
+        suffix = "crai"
+        if file_path.endswith(".bam"):
+            suffix = "bai"
+        return ".".join([file_path, suffix])
+
     def index(self, file_path: str):
         """Index a bam or cram file"""
         LOG.info("Creating index for %s", file_path)
-        index_type = ".cram"
-        if file_path.endswith(".bam"):
-            index_type = ".bai"
-        parameters = ["index", file_path, ".".join([file_path, index_type])]
+        index_path = self.get_index_path(file_path)
+        parameters = ["index", file_path, index_path]
         self.run_command(parameters)
 
     def __repr__(self):

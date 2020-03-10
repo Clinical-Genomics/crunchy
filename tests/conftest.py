@@ -1,7 +1,7 @@
 """Base conftest file"""
+import copy
 import logging
 import pathlib
-import shutil
 
 import pytest
 
@@ -27,6 +27,75 @@ class MockSpringProcess(SpringProcess):
         if self.decompress_success is True:
             self.stdout = "Decompression done!\ntotal time for decompression: 4 s\n"
         return True
+
+
+class MockCramProcess:
+    """Mock the Spring API"""
+
+    def __init__(self, binary="samtools", refgenome_path="genome.fasta", threads=8):
+        """Initialize a CramProcessMock"""
+        self.binary = binary
+        self.refgenome_path = refgenome_path
+        self.threads = threads
+        self.base_call = [self.binary]
+        self.stdout = ""
+        self.stderr = ""
+
+    def run_command(self, parameters=None):
+        """Execute a command in the shell
+
+        Args:
+            parameters(list)
+        """
+        command = copy.deepcopy(self.base_call)
+        if parameters:
+            command.extend(parameters)
+
+        LOG.info("Running command %s", " ".join(command))
+
+        return 0
+
+    def decompress(self, cram_path: str, bam_path: str) -> bool:
+        """Convert cram to bam"""
+        LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
+        parameters = [
+            "view",
+            "-b",
+            "-o",
+            bam_path,
+            "-r",
+            self.refgenome_path,
+            cram_path,
+        ]
+        return self.run_command(parameters)
+
+    def compress(self, parameters=None):
+        """Mock out the run compress functionality"""
+        LOG.info("Running command %s", " ".join(parameters))
+        return self.run_command(parameters)
+
+    def index(self, file_path: str):
+        """Index a bam or cram file"""
+        LOG.info("Creating index for %s", file_path)
+        index_type = ".cram"
+        if file_path.endswith(".bam"):
+            index_type = ".bai"
+        parameters = ["index", file_path, ".".join([file_path, index_type])]
+        return self.run_command(parameters)
+
+
+@pytest.fixture(name="bam_path")
+def fixture_bam_path():
+    """Return the path to a bam file"""
+    _file_path = pathlib.Path("tests/fixtures/bam/test.bam")
+    return _file_path
+
+
+@pytest.fixture(name="cram_path")
+def fixture_cram_path():
+    """Return the path to a cram file"""
+    _file_path = pathlib.Path("tests/fixtures/bam/test.cram")
+    return _file_path
 
 
 @pytest.fixture
@@ -57,23 +126,15 @@ def fixture_spring_path():
 
 
 @pytest.fixture
-def spring_tmp(spring_path, tmp_path):
-    """Return the path to a temporary spring file with a spring compressed file"""
-    _spring_tmp = tmp_path / spring_path.name
-    shutil.copy(str(spring_path), str(_spring_tmp))
-    return _spring_tmp
-
-
-@pytest.fixture
 def spring_api():
     """Return a mocked spring api"""
     return MockSpringProcess("spring", threads=8)
 
 
 @pytest.fixture
-def real_spring_api():
-    """Return a spring api that runs spring"""
-    return SpringProcess("spring", threads=8)
+def cram_api():
+    """Return a mocked spring api"""
+    return MockSpringProcess("spring", threads=8)
 
 
 @pytest.fixture
