@@ -29,6 +29,11 @@ jobs:
       run: |
         conda install -c bioconda spring
     
+    - name: Install samtools
+      shell: bash -l {0}
+      run: |
+        conda install -c bioconda samtools
+    
     - name: Install dependencies
       shell: bash -l {0}
       run: |
@@ -40,7 +45,7 @@ jobs:
       run: |
         pip install pytest
         pip install pytest-cov
-        pytest --cov=crunchy/ --cov-report=xml tests/
+        pytest --cov=. --cov-report=xml tests/
     
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
