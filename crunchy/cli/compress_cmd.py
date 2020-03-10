@@ -4,10 +4,12 @@ import pathlib
 
 import click
 
-from crunchy.compress import compress_spring
+from crunchy.compress import compress_cram, compress_spring
+from crunchy.files import cram_outpath, spring_outpath
 
 from .compare_cmd import compare
 from .decompress_cmd import spring as decompress_spring_cmd
+from .utils import file_exists
 
 LOG = logging.getLogger(__name__)
 
@@ -34,11 +36,7 @@ def compress():
     help="Second read in pair",
 )
 @click.option(
-    "--spring-path",
-    "-o",
-    type=click.Path(exists=False),
-    required=True,
-    help="Path to spring file",
+    "--spring-path", "-o", help="Path to spring file",
 )
 @click.option(
     "--check-integrity",
@@ -46,13 +44,19 @@ def compress():
     help="If the integrity of the files should be checked",
 )
 @click.option("--dry-run", is_flag=True)
+@click.pass_context
 def spring(ctx, first, second, spring_path, dry_run, check_integrity):
     """Compress a pair of fastq files with spring"""
     LOG.info("Running compress spring")
     spring_api = ctx.obj.get("spring_api")
     first = pathlib.Path(first)
     second = pathlib.Path(second)
-    outfile = pathlib.Path(spring_path)
+    if not spring_path:
+        outfile = spring_outpath(first)
+    else:
+        outfile = pathlib.Path(spring_path)
+    file_exists(outfile, exists=False)
+
     try:
         compress_spring(
             first=first,
@@ -70,6 +74,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 
     first_spring = pathlib.Path(first).with_suffix(".spring.fastq")
     second_spring = pathlib.Path(second).with_suffix(".spring.fastq")
+
     ctx.invoke(
         decompress_spring_cmd,
         spring_path=spring_path,
@@ -100,4 +105,39 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
         raise click.Abort
 
 
+@click.command()
+@click.option(
+    "--bam-path",
+    "-b",
+    type=click.Path(exists=True),
+    required=True,
+    help="Path to bam file",
+)
+@click.option(
+    "--cram-path", "-c", help="Path to cram file",
+)
+@click.option("--dry-run", is_flag=True)
+@click.pass_context
+def cram(ctx, bam_path, cram_path, dry_run):
+    """Compress a bam file to cram format"""
+    LOG.info("Running compress cram")
+    cram_api = ctx.obj.get("cram_api")
+    bam_path = pathlib.Path(bam_path)
+    if not cram_path:
+        cram_path = cram_outpath(bam_path)
+    else:
+        cram_path = pathlib.Path(cram_path)
+    file_exists(cram_path, exists=False)
+    try:
+        compress_cram(
+            bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,
+        )
+    except SyntaxError as err:
+        LOG.error(err)
+        raise click.Abort
+
+    LOG.info("Compression succesfull")
+
+
 compress.add_command(spring)
+compress.add_command(cram)
