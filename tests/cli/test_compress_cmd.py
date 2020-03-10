@@ -116,3 +116,29 @@ def test_compress_spring_valid_spring_file(
     )
     # THEN assert the command succedes
     assert result.exit_code == 0
+
+
+def test_compress_spring_real(
+    first_read, second_read, spring_tmp_path, real_base_context
+):
+    """Test to run the compress spring command"""
+    # GIVEN the path to a existing bam file and a cli runner
+    runner = CliRunner()
+    assert not spring_tmp_path.exists()
+    # WHEN running the compress command with dry_run
+    result = runner.invoke(
+        spring,
+        [
+            "--first",
+            str(first_read),
+            "--second",
+            str(second_read),
+            "--spring-path",
+            str(spring_tmp_path),
+        ],
+        obj=real_base_context,
+    )
+    # THEN assert the command succedes
+    assert result.exit_code == 0
+    # THEN assert that the spring file was created
+    assert spring_tmp_path.exists()

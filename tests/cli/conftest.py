@@ -15,6 +15,16 @@ def fixture_base_context(spring_api, cram_api) -> dict:
     }
 
 
+@pytest.fixture(scope="function", name="real_base_context")
+def fixture_real_base_context(real_spring_api, real_cram_api) -> dict:
+    """context to use in cli"""
+
+    return {
+        "spring_api": real_spring_api,
+        "cram_api": real_cram_api,
+    }
+
+
 @pytest.yield_fixture
 def non_existing_path() -> pathlib.Path:
     """Return the path tp a non existing file"""

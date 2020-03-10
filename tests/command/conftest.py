@@ -76,10 +76,3 @@ def spring_api():
 def cram_api(reference_path):
     """Return a cram api"""
     return CramProcess("samtools", refgenome_path=str(reference_path))
-
-
-@pytest.fixture(name="reference_path")
-def fixture_reference_path():
-    """Return the path to fasta reference"""
-    _file_path = pathlib.Path("tests/fixtures/chr_m.fasta")
-    return _file_path

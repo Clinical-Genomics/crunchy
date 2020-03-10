@@ -5,6 +5,8 @@ import shutil
 
 import pytest
 
+from crunchy.command import CramProcess, SpringProcess
+
 LOG = logging.getLogger(__name__)
 
 
@@ -13,6 +15,13 @@ def fixture_fixtures_dir():
     """Return the path to a the fixtures dir"""
     _dir_path = pathlib.Path("tests/fixtures")
     return _dir_path
+
+
+@pytest.fixture(name="reference_path")
+def fixture_reference_path(fixtures_dir):
+    """Return the path to fasta reference"""
+    _file_path = fixtures_dir / "chr_m.fasta"
+    return _file_path
 
 
 @pytest.fixture
@@ -99,6 +108,18 @@ def fixture_spring_api():
 def fixture_cram_api():
     """Return a mocked spring api"""
     return MockCramProcess("samtools", threads=8)
+
+
+@pytest.fixture(name="real_spring_api")
+def fixture_real_spring_api():
+    """Return a spring api that runs spring"""
+    return SpringProcess("spring", threads=8)
+
+
+@pytest.fixture(name="real_cram_api")
+def fixture_real_cram_api(reference_path):
+    """Return a cram api"""
+    return CramProcess("samtools", refgenome_path=str(reference_path))
 
 
 class MockSpringProcess:
