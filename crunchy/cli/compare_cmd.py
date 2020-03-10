@@ -6,8 +6,6 @@ import click
 
 from crunchy.integrity import compare_elements, get_checksum
 
-from .utils import file_exists
-
 LOG = logging.getLogger(__name__)
 
 
@@ -23,7 +21,6 @@ def compare(first, second, algorithm):
     checksums = []
     for _infile in [first, second]:
         _infile = pathlib.Path(_infile)
-        file_exists(_infile)
         checksums.append(get_checksum(_infile, algorithm))
 
     if not compare_elements(checksums):

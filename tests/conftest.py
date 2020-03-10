@@ -1,5 +1,4 @@
 """Base conftest file"""
-import copy
 import logging
 import pathlib
 import shutil
@@ -103,43 +102,21 @@ class MockSpringProcess:
         self.binary = binary
         self.threads = threads
         self.base_call = [self.binary]
-        self.stdout = ""
-        self.stderr = ""
-        self.compress_success = None
-        self.decompress_success = None
         self.tmp = tmp_dir or "./tmp"
 
-    def run_command(self, parameters=None):
+    @staticmethod
+    def run_command(parameters=None):
         """Mock out the run command functionality"""
         LOG.info("Running command %s", " ".join(parameters))
-        if self.compress_success is True:
-            self.stdout = "Compression done!\ntotal time for compression: 4 s\n"
-        if self.decompress_success is True:
-            self.stdout = "Decompression done!\ntotal time for decompression: 4 s\n"
-        return True
+        return 0
 
-    def stdout_lines(self):
-        """Iterate over the lines in self.stdout"""
-        for line in self.stdout.split("\n"):
-            yield line
-
-    def stderr_lines(self):
-        """Iterate over the lines in self.stderr"""
-        for line in self.stderr.split("\n"):
-            yield line
-
-    def decompress(self, spring_path: str, first: str, second: str) -> bool:
+    def decompress(
+        self, spring_path: pathlib.Path, first: pathlib.Path, second: pathlib.Path
+    ) -> bool:
         """Run the spring decompress command"""
-        parameters = ["-d", "-i", spring_path, "-o", first, second]
-        if first.endswith(".gz"):
-            LOG.info("Compressing to gzipped format")
-            parameters.append("-g")
-
-        if self.tmp is not None:
-            parameters.extend(["--working-dir", self.tmp])
-
-        LOG.info("Decompressing spring compressed file")
-        return self.run_command(parameters)
+        parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
+        self.run_command(parameters)
+        return True
 
     def compress(
         self, first: pathlib.Path, second: pathlib.Path, outfile: pathlib.Path
@@ -155,16 +132,8 @@ class MockSpringProcess:
             "-t",
             str(self.threads),
         ]
-
-        if first.endswith(".gz"):
-            LOG.info("File(s) are gzipped")
-            parameters.append("-g")
-
-        if self.tmp is not None:
-            parameters.extend(["--working-dir", self.tmp])
-
-        LOG.info("Compressing fastq to spring")
-        return self.run_command(parameters)
+        self.run_command(parameters)
+        return True
 
 
 class MockCramProcess:
@@ -176,38 +145,32 @@ class MockCramProcess:
         self.refgenome_path = refgenome_path
         self.threads = threads
         self.base_call = [self.binary]
-        self.stdout = ""
-        self.stderr = ""
 
-    def run_command(self, parameters=None):
+    @staticmethod
+    def run_command(parameters=None):
         """Execute a command in the shell
 
         Args:
             parameters(list)
         """
-        command = copy.deepcopy(self.base_call)
-        if parameters:
-            command.extend(parameters)
-
-        LOG.info("Running command %s", " ".join(command))
-
+        LOG.info("Running command %s", " ".join(parameters))
         return 0
 
-    def decompress(self, cram_path: str, bam_path: str) -> bool:
+    def decompress(self, cram_path: pathlib.Path, bam_path: pathlib.Path) -> bool:
         """Convert cram to bam"""
         LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
         parameters = [
             "view",
             "-b",
             "-o",
-            bam_path,
+            str(bam_path),
             "-r",
-            self.refgenome_path,
+            str(self.refgenome_path),
             cram_path,
         ]
         return self.run_command(parameters)
 
-    def compress(self, bam_path: str, cram_path: str) -> bool:
+    def compress(self, bam_path: pathlib.Path, cram_path: pathlib.Path) -> bool:
         """Convert bam to cram"""
         LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
         parameters = [
@@ -215,19 +178,20 @@ class MockCramProcess:
             "-C",
             "-T",
             self.refgenome_path,
-            bam_path,
+            str(bam_path),
             "-o",
-            cram_path,
+            str(cram_path),
         ]
         self.run_command(parameters)
         self.index(cram_path)
         return True
 
-    def index(self, file_path: str):
+    def index(self, file_path: pathlib.Path):
         """Index a bam or cram file"""
         LOG.info("Creating index for %s", file_path)
         index_type = ".cram"
-        if file_path.endswith(".bam"):
+        if file_path.suffix == ".bam":
             index_type = ".bai"
-        parameters = ["index", file_path, ".".join([file_path, index_type])]
+        index_path = file_path.with_suffix(file_path.suffix + index_type)
+        parameters = ["index", str(file_path), str(index_path)]
         return self.run_command(parameters)

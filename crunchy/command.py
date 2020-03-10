@@ -107,10 +107,12 @@ class SpringProcess(Process):
         self.threads = threads
         self.tmp = tmp_dir
 
-    def decompress(self, spring_path: str, first: str, second: str) -> bool:
+    def decompress(
+        self, spring_path: pathlib.Path, first: pathlib.Path, second: pathlib.Path
+    ) -> bool:
         """Run the spring decompress command"""
-        parameters = ["-d", "-i", spring_path, "-o", first, second]
-        if first.endswith(".gz"):
+        parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
+        if first.suffix == ".gz":
             LOG.info("Compressing to gzipped format")
             parameters.append("-g")
 
@@ -152,7 +154,7 @@ class SpringProcess(Process):
             str(self.threads),
         ]
 
-        if first.endswith(".gz"):
+        if first.suffix == ".gz":
             LOG.info("File(s) are gzipped")
             parameters.append("-g")
 
@@ -186,28 +188,28 @@ class SpringProcess(Process):
 class CramProcess(Process):
     """Process to deal with cram commands"""
 
-    def __init__(self, binary, refgenome_path, threads=8):
+    def __init__(self, binary: str, refgenome_path: str, threads=8):
         """Initialise a spring process"""
         super().__init__(binary)
         self.refgenome_path = refgenome_path
         self.threads = threads
 
-    def decompress(self, cram_path: str, bam_path: str) -> bool:
+    def decompress(self, cram_path: pathlib.Path, bam_path: pathlib.Path) -> bool:
         """Convert cram to bam"""
         LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
         parameters = [
             "view",
             "-b",
             "-o",
-            bam_path,
-            "-r",
+            str(bam_path),
+            "-T",
             self.refgenome_path,
-            cram_path,
+            str(cram_path),
         ]
         self.run_command(parameters)
         return True
 
-    def compress(self, bam_path: str, cram_path: str) -> bool:
+    def compress(self, bam_path: pathlib.Path, cram_path: pathlib.Path) -> bool:
         """Convert bam to cram"""
         LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
         parameters = [
@@ -215,27 +217,27 @@ class CramProcess(Process):
             "-C",
             "-T",
             self.refgenome_path,
-            bam_path,
+            str(bam_path),
             "-o",
-            cram_path,
+            str(cram_path),
         ]
         self.run_command(parameters)
         self.index(cram_path)
         return True
 
     @staticmethod
-    def get_index_path(file_path: str) -> str:
+    def get_index_path(file_path: pathlib.Path) -> pathlib.Path:
         """Create a index path based on a file name"""
-        suffix = "crai"
-        if file_path.endswith(".bam"):
-            suffix = "bai"
-        return ".".join([file_path, suffix])
+        index_suffix = ".crai"
+        if file_path.suffix == ".bam":
+            index_suffix = ".bai"
+        return file_path.with_suffix(file_path.suffix + index_suffix)
 
-    def index(self, file_path: str):
+    def index(self, file_path: pathlib.Path):
         """Index a bam or cram file"""
         LOG.info("Creating index for %s", file_path)
         index_path = self.get_index_path(file_path)
-        parameters = ["index", file_path, index_path]
+        parameters = ["index", str(file_path), str(index_path)]
         self.run_command(parameters)
 
     def __repr__(self):

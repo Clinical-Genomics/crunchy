@@ -20,8 +20,8 @@ def fixture_cram_tmp_path(cram_path, tmp_path):
 @pytest.fixture(name="cram_tmp_index_path")
 def fixture_cram_tmp_index_path(cram_tmp_path, cram_api):
     """Return the path to a nonexisting temporary cram file"""
-
-    return cram_api.get_index_path(str(cram_tmp_path))
+    _index_path = cram_api.get_index_path(cram_tmp_path)
+    return _index_path
 
 
 @pytest.fixture

@@ -14,9 +14,7 @@ def test_compress_spring(spring_tmp_path, first_tmp_file, second_tmp_file, sprin
     assert not spring_tmp_path.exists()
 
     # WHEN compressing fastq files into the spring file
-    res = spring_api.compress(
-        str(first_tmp_file), str(second_tmp_file), str(spring_tmp_path)
-    )
+    res = spring_api.compress(first_tmp_file, second_tmp_file, spring_tmp_path)
 
     # THEN assert that process was succesful
     assert res is True
@@ -36,7 +34,7 @@ def test_decompress_spring(spring_tmp_file, spring_api):
     assert not second_read.exists()
 
     # WHEN decompressing the spring file to the fastq files
-    res = spring_api.decompress(str(spring_tmp_file), str(first_read), str(second_read))
+    res = spring_api.decompress(spring_tmp_file, first_read, second_read)
 
     # THEN assert that the fastq files have been created
     assert res is True
@@ -53,7 +51,7 @@ def test_decompress_cram(cram_tmp_file, bam_tmp_path, cram_api):
     # GIVEN a cram api
 
     # WHEN decompressing the cram file
-    res = cram_api.decompress(str(cram_tmp_file), str(bam_tmp_path))
+    res = cram_api.decompress(cram_tmp_file, bam_tmp_path)
 
     # THEN assert that the process executed with success
     assert res is True
@@ -66,10 +64,10 @@ def test_get_index_path_cram(cram_api, cram_tmp_path):
     # GIVEN a cram path and a cram api
     assert cram_tmp_path.suffix == ".cram"
     # WHEN creating a index
-    index = cram_api.get_index_path(str(cram_tmp_path))
+    index = cram_api.get_index_path(cram_tmp_path)
     # THEN assert that the index has the correct suffix
-    assert index.endswith(".crai")
-    assert set(pathlib.Path(index).suffixes) == set([".cram", ".crai"])
+    assert index.suffix == ".crai"
+    assert set(index.suffixes) == set([".cram", ".crai"])
 
 
 def test_get_index_path_bam(cram_api, bam_tmp_path):
@@ -77,10 +75,10 @@ def test_get_index_path_bam(cram_api, bam_tmp_path):
     # GIVEN a bam path and a cram api
     assert bam_tmp_path.suffix == ".bam"
     # WHEN creating a index
-    index = cram_api.get_index_path(str(bam_tmp_path))
+    index = cram_api.get_index_path(bam_tmp_path)
     # THEN assert that the index has the correct suffix
-    assert index.endswith(".bai")
-    assert set(pathlib.Path(index).suffixes) == set([".bam", ".bai"])
+    assert index.suffix == ".bai"
+    assert set(index.suffixes) == set([".bam", ".bai"])
 
 
 def test_compress_cram(cram_tmp_path, bam_tmp_file, cram_api, cram_tmp_index_path):
@@ -95,7 +93,7 @@ def test_compress_cram(cram_tmp_path, bam_tmp_file, cram_api, cram_tmp_index_pat
     # GIVEN a cram api
 
     # WHEN decompressing the cram file
-    res = cram_api.compress(bam_path=str(bam_tmp_file), cram_path=str(cram_tmp_path))
+    res = cram_api.compress(bam_path=bam_tmp_file, cram_path=cram_tmp_path)
 
     # THEN assert that the process executed with success
     assert res is True

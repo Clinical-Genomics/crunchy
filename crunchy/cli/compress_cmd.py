@@ -5,7 +5,7 @@ import pathlib
 import click
 
 from crunchy.compress import compress_cram, compress_spring
-from crunchy.files import cram_outpath
+from crunchy.files import cram_outpath, spring_outpath
 
 from .compare_cmd import compare
 from .decompress_cmd import spring as decompress_spring_cmd
@@ -36,11 +36,7 @@ def compress():
     help="Second read in pair",
 )
 @click.option(
-    "--spring-path",
-    "-o",
-    type=click.Path(exists=False),
-    required=True,
-    help="Path to spring file",
+    "--spring-path", "-o", help="Path to spring file",
 )
 @click.option(
     "--check-integrity",
@@ -55,7 +51,12 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
     spring_api = ctx.obj.get("spring_api")
     first = pathlib.Path(first)
     second = pathlib.Path(second)
-    outfile = pathlib.Path(spring_path)
+    if not spring_path:
+        outfile = spring_outpath(first)
+    else:
+        outfile = pathlib.Path(spring_path)
+    file_exists(outfile, exists=False)
+
     try:
         compress_spring(
             first=first,
@@ -73,6 +74,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 
     first_spring = pathlib.Path(first).with_suffix(".spring.fastq")
     second_spring = pathlib.Path(second).with_suffix(".spring.fastq")
+
     ctx.invoke(
         decompress_spring_cmd,
         spring_path=spring_path,
