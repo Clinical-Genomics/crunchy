@@ -1,5 +1,5 @@
 name: Python Master Workflow
-on: 
+on:
   push:
     branches:
       - 'master'
@@ -7,16 +7,16 @@ on:
 jobs:
   codecov:
     name: Codecov Workflow
-    runs-on: ubuntu-latest    
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.7]
-    
+
     steps:
 
     - name: Git checkout
       uses: actions/checkout@v1
-    
+
     - name: Get Conda
       uses: goanpeca/setup-miniconda@v1
       with:
@@ -33,7 +33,7 @@ jobs:
       shell: bash -l {0}
       run: |
         conda install -c bioconda samtools
-    
+
     - name: Install dependencies
       shell: bash -l {0}
       run: |
