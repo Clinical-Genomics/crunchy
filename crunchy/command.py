@@ -152,7 +152,7 @@ class SpringProcess(Process):
             str(self.threads),
         ]
 
-        if first.suffix == ".gz":
+        if first.endswith(".gz"):
             LOG.info("File(s) are gzipped")
             parameters.append("-g")
 

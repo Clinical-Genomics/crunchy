@@ -84,44 +84,63 @@ class MockCramProcess:
         return self.run_command(parameters)
 
 
-@pytest.fixture(name="bam_path")
-def fixture_bam_path():
-    """Return the path to a bam file"""
-    _file_path = pathlib.Path("tests/fixtures/bam/test.bam")
-    return _file_path
+@pytest.fixture(name="fixtures_dir")
+def fixture_fixtures_dir():
+    """Return the path to a the fixtures dir"""
+    _dir_path = pathlib.Path("tests/fixtures")
+    return _dir_path
 
 
-@pytest.fixture(name="cram_path")
-def fixture_cram_path():
-    """Return the path to a cram file"""
-    _file_path = pathlib.Path("tests/fixtures/bam/test.cram")
+@pytest.fixture
+def dummy_file_path(fixtures_dir):
+    """Return the path to a dummy file"""
+    _file_path = fixtures_dir / "dummy.txt"
     return _file_path
 
 
 @pytest.fixture
-def first_read():
+def zipped_file_path(fixtures_dir):
+    """Return the path to a zipped dummy file"""
+    _file_path = fixtures_dir / "zipped_file.txt.gz"
+    return _file_path
+
+
+@pytest.fixture(name="bam_path")
+def fixture_bam_path(fixtures_dir):
+    """Return the path to a bam file"""
+    _file_path = fixtures_dir / "bam" / "test.bam"
+    return _file_path
+
+
+@pytest.fixture(name="cram_path")
+def fixture_cram_path(fixtures_dir):
+    """Return the path to a cram file"""
+    _file_path = fixtures_dir / "bam" / "test.cram"
+    return _file_path
+
+
+@pytest.fixture
+def first_read(fixtures_dir):
     """Return the path first read in read pair"""
-    _file_path = pathlib.Path(
-        "tests/fixtures/fastqs/CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz"
+    _file_path = (
+        fixtures_dir / "fastq" / "CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz"
     )
     return _file_path
 
 
 @pytest.fixture
-def second_read():
+def second_read(fixtures_dir):
     """Return the path second read in read pair"""
-    _file_path = pathlib.Path(
-        "tests/fixtures/fastqs/CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz"
+    _file_path = (
+        fixtures_dir / "fastq" / "CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz"
     )
     return _file_path
 
 
 @pytest.fixture(name="spring_path")
-def fixture_spring_path():
+def fixture_spring_path(fixtures_dir):
     """Return the path to a spring compressed file"""
-    _file_path = pathlib.Path(
-        "tests/fixtures/spring/CPCT12345678R_HJJLGCCXX_S1_L001.spring"
-    )
+    _file_path = fixtures_dir / "spring" / "CPCT12345678R_HJJLGCCXX_S1_L001.spring"
     return _file_path
 
 
@@ -135,24 +154,3 @@ def spring_api():
 def cram_api():
     """Return a mocked spring api"""
     return MockSpringProcess("spring", threads=8)
-
-
-@pytest.fixture
-def fixtures_dir():
-    """Return the path to a dummy file"""
-    _dir_path = pathlib.Path("tests/fixtures")
-    return _dir_path
-
-
-@pytest.fixture
-def dummy_file_path():
-    """Return the path to a dummy file"""
-    _file_path = pathlib.Path("tests/fixtures/dummy.txt")
-    return _file_path
-
-
-@pytest.fixture
-def zipped_file_path():
-    """Return the path to a zipped dummy file"""
-    _file_path = pathlib.Path("tests/fixtures/zipped_file.txt.gz")
-    return _file_path
