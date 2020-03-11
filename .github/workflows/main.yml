@@ -42,4 +42,5 @@ jobs:
       shell: bash -l {0}
       run: |
         pip install pytest
+        pip install pytest-mock
         py.test -rxs tests/
