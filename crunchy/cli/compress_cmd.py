@@ -15,7 +15,7 @@ LOG = logging.getLogger(__name__)
 
 @click.group()
 def compress():
-    """Compress a pair of fastq files with spring"""
+    """Compress genomic files"""
 
 
 @click.command()
@@ -113,7 +113,7 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
 def bam(ctx, bam_path, cram_path, dry_run):
-    """Compress a bam file to cram format"""
+    """Compress a bam file to cram format with samtools"""
     LOG.info("Running compress bam")
     cram_api = ctx.obj.get("cram_api")
     bam_path = pathlib.Path(bam_path)
