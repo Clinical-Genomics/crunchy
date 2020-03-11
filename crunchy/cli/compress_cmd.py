@@ -4,20 +4,18 @@ import pathlib
 
 import click
 
+from crunchy.cli.compare_cmd import compare
+from crunchy.cli.decompress_cmd import spring as decompress_spring_cmd
+from crunchy.cli.utils import file_exists
 from crunchy.compress import compress_cram, compress_spring
 from crunchy.files import cram_outpath, spring_outpath
-
-from .compare_cmd import compare
-from .decompress_cmd import spring as decompress_spring_cmd
-from .utils import file_exists
 
 LOG = logging.getLogger(__name__)
 
 
 @click.group()
 def compress():
-    """Compress a pair of fastq files with spring"""
-    LOG.info("Running compress")
+    """Compress genomic files"""
 
 
 @click.command()
@@ -45,29 +43,25 @@ def compress():
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
-def spring(ctx, first, second, spring_path, dry_run, check_integrity):
+def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
     """Compress a pair of fastq files with spring"""
-    LOG.info("Running compress spring")
+    LOG.info("Running compress fastq")
     spring_api = ctx.obj.get("spring_api")
     first = pathlib.Path(first)
     second = pathlib.Path(second)
     if not spring_path:
-        outfile = spring_outpath(first)
+        spring_path = spring_outpath(first)
     else:
-        outfile = pathlib.Path(spring_path)
-    file_exists(outfile, exists=False)
+        spring_path = pathlib.Path(spring_path)
+    file_exists(spring_path, exists=False)
 
-    try:
-        compress_spring(
-            first=first,
-            second=second,
-            outfile=outfile,
-            spring_api=spring_api,
-            dry_run=dry_run,
-        )
-    except SyntaxError as err:
-        LOG.error(err)
-        raise click.Abort
+    compress_spring(
+        first=first,
+        second=second,
+        outfile=spring_path,
+        spring_api=spring_api,
+        dry_run=dry_run,
+    )
 
     if not check_integrity:
         return
@@ -77,7 +71,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 
     ctx.invoke(
         decompress_spring_cmd,
-        spring_path=spring_path,
+        spring_path=str(spring_path),
         first=str(first_spring),
         second=str(second_spring),
         dry_run=dry_run,
@@ -85,7 +79,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 
     success = True
     try:
-        ctx.invode(compare, first=str(first), second=str(first_spring))
+        ctx.invoke(compare, first=str(first), second=str(first_spring))
         ctx.invoke(compare, first=str(second), second=str(second_spring))
     except click.Abort:
         LOG.error("Uncompressed spring differ from original fastqs")
@@ -118,9 +112,9 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
-def cram(ctx, bam_path, cram_path, dry_run):
-    """Compress a bam file to cram format"""
-    LOG.info("Running compress cram")
+def bam(ctx, bam_path, cram_path, dry_run):
+    """Compress a bam file to cram format with samtools"""
+    LOG.info("Running compress bam")
     cram_api = ctx.obj.get("cram_api")
     bam_path = pathlib.Path(bam_path)
     if not cram_path:
@@ -128,16 +122,12 @@ def cram(ctx, bam_path, cram_path, dry_run):
     else:
         cram_path = pathlib.Path(cram_path)
     file_exists(cram_path, exists=False)
-    try:
-        compress_cram(
-            bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,
-        )
-    except SyntaxError as err:
-        LOG.error(err)
-        raise click.Abort
+    compress_cram(
+        bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,
+    )
 
     LOG.info("Compression succesfull")
 
 
-compress.add_command(spring)
-compress.add_command(cram)
+compress.add_command(fastq)
+compress.add_command(bam)

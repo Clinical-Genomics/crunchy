@@ -5,7 +5,7 @@
 
 # Crunchy
 
-A python wrapper around [spring][spring] to compress fastq and check the integrity.
+A python wrapper around [spring][spring] and cram (samtools) to compress fastq to spring and bam to cram. When compressing fastqs to spring an integrity check can be performed by using flag: `crunchy compress spring --spring-path <springfile> --first <read_1.fastq>  --second <read_2.fastq> --check-integrity`
 
 ## Install
 
@@ -17,24 +17,44 @@ Usage: crunchy [OPTIONS] COMMAND [ARGS]...
 
   Base command for crunchy
 
+                .---. .---.
+               :     : o   :    me want cookie!
+           _..-:   o :     :-.._    /
+       .-''  '  `---' `---' "   ``-.
+     .'   "   '  "  .    "  . '  "  `.
+    :   '.---.,,.,...,.,.,.,..---.  ' ;
+    `. " `.                     .' " .'
+     `.  '`.                   .' ' .'
+      `.    `-._           _.-' "  .'  .----.
+        `. "    '"--...--"'  . ' .'  .'  o   `.
+        .'`-._'    " .     " _.-'`. :       o  :
+      .'      ```--.....--'''    ' `:_ o       :
+    .'    "     '         "     "   ; `.;";";";'
+   ;         '       "       '     . ; .' ; ; ;
+  ;     '         '       '   "    .'      .-'
+  '  "     "   '      "           "    _.-'
+
 Options:
   --spring-binary TEXT            Path to spring binary  [default: spring]
+  --samtools-binary TEXT          Path to spring binary  [default: samtools]
   -t, --threads INTEGER           Number of threads to use for spring
                                   compression  [default: 8]
+  -r, --reference TEXT            Path to reference genome
   --log-level [DEBUG|INFO|WARNING]
                                   Choose what log messages to show
+  --tmp-dir TEXT                  If specific temp dir should be used
   --help                          Show this message and exit.
 
 Commands:
-  auto        Recursively find all fastq pairs below a directory and spring...
-  checksum    Create a checksum for the file(s)
-  compress    Compress a file
-  decompress  Decompress a file
+  auto        Run whole pipeline by compressing, comparing and deleting...
+  compare     Compare two files by generating checksums.
+  compress    Compress genomic files
+  decompress  Decompress genomic files
 ```
 
 ## Workflow
 
-Each command can be run separately. To compress all fastq pairs below a directory run `crunchy auto <path_to_dir>`.
+Each command can be run separately. To compress all fastq pairs below a directory run `crunchy auto spring <path_to_dir>`.
 
 1. **Recursively find all fastq pairs**
 
@@ -42,10 +62,10 @@ Each command can be run separately. To compress all fastq pairs below a director
 ```file_1.fastq + file_2.fastq (spring)-> file.spring```
 
 1. **Decompress with spring**
-```file.spring (spring)-> file_1.fastq + file_2.fastq```
+```file.spring (spring)-> file_1.spring.fastq + file_2.spring.fastq```
 
 1. **Compare checksum with previous**
-```file_1.fastq + file_2.fastq (hashlib)-> compare```
+```file_1.spring.fastq + file_1.fastq (hashlib)-> compare```
 
 1. **Delete fastq** (If the compression was lossless)
 ```file_1.fastq + file_2.fastq (rm)->```

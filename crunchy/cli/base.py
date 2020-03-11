@@ -1,5 +1,6 @@
 """CLI functionality for crunchy"""
 import logging
+import textwrap
 
 import click
 import coloredlogs
@@ -48,7 +49,26 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
 def base_command(
     ctx, spring_binary, samtools_binary, threads, reference, log_level, tmp_dir
 ):
-    """Base command for crunchy"""
+    """Base command for crunchy
+
+    \b
+                  .---. .---.
+                 :     : o   :    me want cookie!
+             _..-:   o :     :-.._    /
+         .-''  '  `---' `---' "   ``-.
+       .'   "   '  "  .    "  . '  "  `.
+      :   '.---.,,.,...,.,.,.,..---.  ' ;
+      `. " `.                     .' " .'
+       `.  '`.                   .' ' .'
+        `.    `-._           _.-' "  .'  .----.
+          `. "    '"--...--"'  . ' .'  .'  o   `.
+          .'`-._'    " .     " _.-'`. :       o  :
+        .'      ```--.....--'''    ' `:_ o       :
+      .'    "     '         "     "   ; `.;";";";'
+     ;         '       "       '     . ; .' ; ; ;
+    ;     '         '       '   "    .'      .-'
+    '  "     "   '      "           "    _.-'
+    """
     coloredlogs.install(level=log_level)
     spring_api = SpringProcess(spring_binary, threads, tmp_dir)
     ctx.obj = {"spring_api": spring_api}

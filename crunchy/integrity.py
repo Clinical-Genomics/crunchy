@@ -21,7 +21,7 @@ def get_checksum(infile: pathlib.Path, algorithm: str = "sha256"):
     if algorithm == "sha1":
         LOG.info("Use sha1")
         hash_obj = hashlib.sha1()
-    if algorithm == "md5":
+    elif algorithm == "md5":
         LOG.info("Use md5")
         hash_obj = hashlib.md5()
     else:

@@ -21,6 +21,22 @@ def test_generate_md5(dummy_file_path):
     assert res == md5
 
 
+def test_generate_sha1(dummy_file_path):
+    """Test to generate a sha1 checksum"""
+    # GIVEN a file and a calculated sha1
+    with open(dummy_file_path, "rb") as infile:
+        content = infile.read()
+    sha1 = hashlib.sha1(content).hexdigest()
+
+    # WHEN generating a sha1 from that file
+    res = get_checksum(dummy_file_path, "sha1")
+
+    # THEN assert a sha1 was created and returned as a string
+    assert isinstance(res, str)
+    # THEN the sha1 is correct
+    assert res == sha1
+
+
 def test_compare_checksums(dummy_file_path):
     """Test to compare two checksums"""
     # GIVEN a file
