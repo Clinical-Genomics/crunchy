@@ -16,7 +16,6 @@ LOG = logging.getLogger(__name__)
 @click.group()
 def compress():
     """Compress a pair of fastq files with spring"""
-    LOG.info("Running compress")
 
 
 @click.command()
@@ -123,13 +122,9 @@ def cram(ctx, bam_path, cram_path, dry_run):
     else:
         cram_path = pathlib.Path(cram_path)
     file_exists(cram_path, exists=False)
-    try:
-        compress_cram(
-            bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,
-        )
-    except SyntaxError as err:
-        LOG.error(err)
-        raise click.Abort
+    compress_cram(
+        bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,
+    )
 
     LOG.info("Compression succesfull")
 

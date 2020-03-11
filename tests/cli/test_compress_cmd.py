@@ -5,9 +5,19 @@ import pathlib
 from click.testing import CliRunner
 
 from crunchy.cli import compare_cmd
-from crunchy.cli.compress_cmd import cram, spring
+from crunchy.cli.compress_cmd import compress, cram, spring
 
 LOG = logging.getLogger(__name__)
+
+
+def test_compress_cmd():
+    """Test to run the compress base command"""
+    # GIVEN a cli runner
+    runner = CliRunner()
+    # WHEN running the compress command with dry_run
+    result = runner.invoke(compress, obj={})
+    # THEN assert the command was succesful even without a valid api
+    assert result.exit_code == 0
 
 
 def test_compress_cram_dry_run(bam_tmp_file):

@@ -35,13 +35,6 @@ def spring(ctx, spring_path, first, second, dry_run):
     LOG.info("Running decompress")
     spring_api = ctx.obj.get("spring_api")
     spring_path = pathlib.Path(spring_path)
-    try:
-        file_exists(spring_path)
-    except click.Abort as err:
-        if dry_run:
-            LOG.warning("Dry run! Continue")
-        else:
-            raise err
 
     if not (first or second):
         LOG.warning("No filenames provided. Guess outfiles")
