@@ -4,12 +4,11 @@ import pathlib
 
 import click
 
+from crunchy.cli.compare_cmd import compare
+from crunchy.cli.decompress_cmd import spring as decompress_spring_cmd
+from crunchy.cli.utils import file_exists
 from crunchy.compress import compress_cram, compress_spring
 from crunchy.files import cram_outpath, spring_outpath
-
-from .compare_cmd import compare
-from .decompress_cmd import spring as decompress_spring_cmd
-from .utils import file_exists
 
 LOG = logging.getLogger(__name__)
 
@@ -52,15 +51,15 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
     first = pathlib.Path(first)
     second = pathlib.Path(second)
     if not spring_path:
-        outfile = spring_outpath(first)
+        spring_path = spring_outpath(first)
     else:
-        outfile = pathlib.Path(spring_path)
-    file_exists(outfile, exists=False)
+        spring_path = pathlib.Path(spring_path)
+    file_exists(spring_path, exists=False)
 
     compress_spring(
         first=first,
         second=second,
-        outfile=outfile,
+        outfile=spring_path,
         spring_api=spring_api,
         dry_run=dry_run,
     )
@@ -73,7 +72,7 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 
     ctx.invoke(
         decompress_spring_cmd,
-        spring_path=spring_path,
+        spring_path=str(spring_path),
         first=str(first_spring),
         second=str(second_spring),
         dry_run=dry_run,

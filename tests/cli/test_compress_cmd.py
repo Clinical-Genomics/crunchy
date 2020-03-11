@@ -1,7 +1,13 @@
 """Code to test the CLI compress commands"""
+import logging
+import pathlib
+
 from click.testing import CliRunner
 
+from crunchy.cli import compare_cmd
 from crunchy.cli.compress_cmd import cram, spring
+
+LOG = logging.getLogger(__name__)
 
 
 def test_compress_cram_dry_run(bam_tmp_file):
@@ -142,3 +148,84 @@ def test_compress_spring_real(
     assert result.exit_code == 0
     # THEN assert that the spring file was created
     assert spring_tmp_path.exists()
+
+
+def nr_files(dirpath: pathlib.Path) -> int:
+    """Count the number of files in a directory"""
+    nr_files_indir = 0
+    for path in dirpath.iterdir():
+        if not path.is_file():
+            continue
+        nr_files_indir += 1
+    return nr_files_indir
+
+
+def test_compress_spring_real_with_integrity(
+    first_tmp_file, second_tmp_file, spring_tmp_path, real_base_context
+):
+    """Test to run the compress spring command with integrity check"""
+    # GIVEN the path to a existing two existing fastq files and a non existing spring
+    runner = CliRunner()
+    assert not spring_tmp_path.exists()
+    assert first_tmp_file.exists()
+    assert second_tmp_file.exists()
+
+    dir_path = spring_tmp_path.parent
+    assert nr_files(dir_path) == 2
+    # WHEN running the compress command with an intergrity check
+    result = runner.invoke(
+        spring,
+        [
+            "--first",
+            str(first_tmp_file),
+            "--second",
+            str(second_tmp_file),
+            "--spring-path",
+            str(spring_tmp_path),
+            "--check-integrity",
+        ],
+        obj=real_base_context,
+    )
+    # THEN assert the command succedes
+    assert result.exit_code == 0
+    # THEN assert that the spring file was created
+    assert spring_tmp_path.exists()
+    # THEN assert that the files created for integrity check was removed
+    assert nr_files(dir_path) == 3
+
+
+def test_compress_spring_real_with_integrity_fail(
+    first_tmp_file, second_tmp_file, spring_tmp_path, real_base_context, mocker
+):
+    """Test to run the compress spring command when integrity check fails"""
+    # GIVEN the path to a existing two existing fastq files and a non existing spring
+    runner = CliRunner()
+    assert not spring_tmp_path.exists()
+    assert first_tmp_file.exists()
+    assert second_tmp_file.exists()
+
+    dir_path = spring_tmp_path.parent
+    assert nr_files(dir_path) == 2
+    mocker.patch.object(compare_cmd, "compare_elements")
+    compare_cmd.compare_elements.return_value = False
+    # WHEN running the compress command with an intergrity check
+    result = runner.invoke(
+        spring,
+        [
+            "--first",
+            str(first_tmp_file),
+            "--second",
+            str(second_tmp_file),
+            "--spring-path",
+            str(spring_tmp_path),
+            "--check-integrity",
+        ],
+        obj=real_base_context,
+    )
+    # THEN assert the command succedes
+    print(result.__dict__)
+    assert result.exit_code == 1
+    # THEN assert that the spring file was deleted
+    assert not spring_tmp_path.exists()
+    # THEN assert that only the original fastq files are left
+    assert nr_files(dir_path) == 2

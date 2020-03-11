@@ -17,6 +17,9 @@ def fixture_fixtures_dir():
     return _dir_path
 
 
+# File paths fixtures #
+
+
 @pytest.fixture(name="reference_path")
 def fixture_reference_path(fixtures_dir):
     """Return the path to fasta reference"""
@@ -52,8 +55,8 @@ def fixture_cram_path(fixtures_dir):
     return _file_path
 
 
-@pytest.fixture
-def first_read(fixtures_dir):
+@pytest.fixture(name="first_read")
+def fixture_first_read(fixtures_dir):
     """Return the path first read in read pair"""
     _file_path = (
         fixtures_dir / "fastq" / "CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz"
@@ -61,8 +64,8 @@ def first_read(fixtures_dir):
     return _file_path
 
 
-@pytest.fixture
-def second_read(fixtures_dir):
+@pytest.fixture(name="second_read")
+def fixture_second_read(fixtures_dir):
     """Return the path second read in read pair"""
     _file_path = (
         fixtures_dir / "fastq" / "CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz"
@@ -77,18 +80,84 @@ def fixture_spring_path(fixtures_dir):
     return _file_path
 
 
+# Temp files fixtures #
+
+
+@pytest.fixture(scope="function", name="project_dir")
+def fixture_project_dir(tmpdir_factory):
+    """Path to a temporary directory"""
+    my_tmpdir = pathlib.Path(tmpdir_factory.mktemp("data"))
+    yield my_tmpdir
+    shutil.rmtree(str(my_tmpdir))
+
+
+# Paths to non existing files #
+
+
+@pytest.fixture(name="first_tmp_path")
+def fixture_first_tmp_path(first_read, project_dir):
+    """Return the path to a nonexisting fastq file"""
+    _file_path = project_dir / first_read.name
+    return _file_path
+
+
+@pytest.fixture(name="second_tmp_path")
+def fixture_second_tmp_path(second_read, project_dir):
+    """Return the path to a nonexisting fastq file"""
+    _file_path = project_dir / second_read.name
+    return _file_path
+
+
 @pytest.fixture(name="spring_tmp_path")
-def fixture_spring_tmp_path(spring_path, tmp_path):
+def fixture_spring_tmp_path(spring_path, project_dir):
     """Return the path to a nonexisting temporary spring file"""
-    _spring_tmp = tmp_path / spring_path.name
+    _spring_tmp = project_dir / spring_path.name
     return _spring_tmp
 
 
 @pytest.fixture(name="bam_tmp_path")
-def fixture_bam_tmp_path(bam_path, tmp_path):
+def fixture_bam_tmp_path(bam_path, project_dir):
     """Return the path to a nonexisting small bam file"""
-    _file_path = tmp_path / bam_path.name
+    _file_path = project_dir / bam_path.name
     return _file_path
+
+
+@pytest.fixture(name="cram_tmp_path")
+def fixture_cram_tmp_path(cram_path, project_dir):
+    """Return the path to a nonexisting temporary cram file"""
+    _file_path = project_dir / cram_path.name
+    return _file_path
+
+
+@pytest.fixture(name="cram_tmp_index_path")
+def fixture_cram_tmp_index_path(cram_tmp_path, real_cram_api):
+    """Return the path to a nonexisting temporary cram file"""
+    _index_path = real_cram_api.get_index_path(cram_tmp_path)
+    return _index_path
+
+
+# Paths to existing temporary files #
+
+
+@pytest.fixture(name="first_tmp_file")
+def fixture_first_tmp_file(first_tmp_path, first_read):
+    """Return the path to a temporary fastq file"""
+    shutil.copy(str(first_read), str(first_tmp_path))
+    return first_tmp_path
+
+
+@pytest.fixture(name="second_tmp_file")
+def fixture_second_tmp_file(second_tmp_path, second_read):
+    """Return the path to a temporary fastq file"""
+    shutil.copy(str(second_read), str(second_tmp_path))
+    return second_tmp_path
+
+
+@pytest.fixture(name="spring_tmp_file")
+def fixture_spring_tmp_file(spring_tmp_path, spring_path):
+    """Return the path to a temporary spring file"""
+    shutil.copy(str(spring_path), str(spring_tmp_path))
+    return spring_tmp_path
 
 
 @pytest.fixture
@@ -96,6 +165,16 @@ def bam_tmp_file(bam_path, bam_tmp_path):
     """Return the path to a temporary small bam file"""
     shutil.copy(str(bam_path), str(bam_tmp_path))
     return bam_tmp_path
+
+
+@pytest.fixture
+def cram_tmp_file(cram_path, cram_tmp_path):
+    """Return the path to a temporary cram file"""
+    shutil.copy(str(cram_path), str(cram_tmp_path))
+    return cram_tmp_path
+
+
+# Fixtures for apis #
 
 
 @pytest.fixture(name="spring_api")
