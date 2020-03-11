@@ -14,7 +14,7 @@ URL = "https://github.com/Clinical-Genomics/crunchy"
 EMAIL = "mans.magnusson@scilifelab.com"
 AUTHOR = "Mans Magnusson"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = 0.1
+VERSION = 0.2
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
