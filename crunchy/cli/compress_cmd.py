@@ -43,9 +43,9 @@ def compress():
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
-def spring(ctx, first, second, spring_path, dry_run, check_integrity):
+def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
     """Compress a pair of fastq files with spring"""
-    LOG.info("Running compress spring")
+    LOG.info("Running compress fastq")
     spring_api = ctx.obj.get("spring_api")
     first = pathlib.Path(first)
     second = pathlib.Path(second)
@@ -112,9 +112,9 @@ def spring(ctx, first, second, spring_path, dry_run, check_integrity):
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
-def cram(ctx, bam_path, cram_path, dry_run):
+def bam(ctx, bam_path, cram_path, dry_run):
     """Compress a bam file to cram format"""
-    LOG.info("Running compress cram")
+    LOG.info("Running compress bam")
     cram_api = ctx.obj.get("cram_api")
     bam_path = pathlib.Path(bam_path)
     if not cram_path:
@@ -129,5 +129,5 @@ def cram(ctx, bam_path, cram_path, dry_run):
     LOG.info("Compression succesfull")
 
 
-compress.add_command(spring)
-compress.add_command(cram)
+compress.add_command(fastq)
+compress.add_command(bam)

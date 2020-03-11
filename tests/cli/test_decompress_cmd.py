@@ -4,7 +4,7 @@ import shutil
 
 from click.testing import CliRunner
 
-from crunchy.cli.decompress_cmd import decompress, spring
+from crunchy.cli.decompress_cmd import cram, decompress, spring
 from crunchy.files import fastq_outpaths
 
 
@@ -16,6 +16,18 @@ def nr_files(dirpath: pathlib.Path) -> int:
             continue
         nr_files_indir += 1
     return nr_files_indir
+
+
+def test_decompress_cram(base_context, cram_tmp_file, bam_tmp_path):
+    """Test to run the compress cram command"""
+    # GIVEN a cli runner
+    runner = CliRunner()
+    # WHEN running the decompress cram command
+    result = runner.invoke(
+        cram, [str(cram_tmp_file), "-b", str(bam_tmp_path)], obj=base_context
+    )
+    # THEN assert the command succeeds
+    assert result.exit_code == 0
 
 
 def test_decompress_cmd():

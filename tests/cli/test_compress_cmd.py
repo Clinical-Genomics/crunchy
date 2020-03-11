@@ -5,7 +5,7 @@ import pathlib
 from click.testing import CliRunner
 
 from crunchy.cli import compare_cmd
-from crunchy.cli.compress_cmd import compress, cram, spring
+from crunchy.cli.compress_cmd import bam, compress, fastq
 
 LOG = logging.getLogger(__name__)
 
@@ -20,65 +20,65 @@ def test_compress_cmd():
     assert result.exit_code == 0
 
 
-def test_compress_cram_dry_run(bam_tmp_file):
-    """Test to run the compress cram command"""
+def test_compress_bam_dry_run(bam_tmp_file):
+    """Test to run the compress bam command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     bam_path = bam_tmp_file
     assert bam_path.exists()
     # WHEN running the compress command with dry_run
-    result = runner.invoke(cram, ["--bam-path", str(bam_path), "--dry-run"], obj={})
+    result = runner.invoke(bam, ["--bam-path", str(bam_path), "--dry-run"], obj={})
     # THEN assert the command was succesful even without a valid api
     assert result.exit_code == 0
 
 
-def test_compress_cram_no_outpath(base_context, bam_tmp_file):
-    """Test to run the compress cram command"""
+def test_compress_bam_no_outpath(base_context, bam_tmp_file):
+    """Test to run the compress bam command"""
     # GIVEN the path to a bam file and a cli runner
     runner = CliRunner()
     bam_path = bam_tmp_file
     assert bam_path.exists()
     # WHEN running the compress command
-    result = runner.invoke(cram, ["--bam-path", bam_path], obj=base_context,)
+    result = runner.invoke(bam, ["--bam-path", bam_path], obj=base_context,)
     # THEN assert the command was succesful
     assert result.exit_code == 0
 
 
-def test_compress_cram_valid_outpath(base_context, bam_path):
-    """Test to run the compress cram command"""
+def test_compress_bam_valid_outpath(base_context, bam_path):
+    """Test to run the compress bam command"""
     # GIVEN the path to a bam file, a non existing outpath and a cli runner
     outpath = "a_file.cram"
     runner = CliRunner()
     # WHEN running the compress command
     result = runner.invoke(
-        cram, ["--bam-path", bam_path, "--cram-path", outpath], obj=base_context,
+        bam, ["--bam-path", bam_path, "--cram-path", outpath], obj=base_context,
     )
     # THEN assert the command was succesful
     assert result.exit_code == 0
 
 
-def test_compress_cram_existing_outpath(base_context, bam_path, cram_path):
-    """Test to run the compress cram command"""
+def test_compress_bam_existing_outpath(base_context, bam_path, cram_path):
+    """Test to run the compress bam command"""
     # GIVEN the path to a bam file, a existing outpath and a cli runner
     runner = CliRunner()
     assert cram_path.exists()
     # WHEN running the compress command
     res = runner.invoke(
-        cram, ["--bam-path", bam_path, "--cram-path", cram_path], obj=base_context,
+        bam, ["--bam-path", bam_path, "--cram-path", cram_path], obj=base_context,
     )
     # THEN the progam should abort since file already exists
     assert res.exit_code == 1
 
 
-def test_compress_spring_dry_run(first_read, second_read):
-    """Test to run the compress spring command"""
+def test_compress_fastq_dry_run(first_read, second_read):
+    """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     assert first_read.exists()
     assert second_read.exists()
     # WHEN running the compress command with dry_run
     result = runner.invoke(
-        spring,
+        fastq,
         ["--first", str(first_read), "--second", str(second_read), "--dry-run"],
         obj={},
     )
@@ -86,16 +86,16 @@ def test_compress_spring_dry_run(first_read, second_read):
     assert result.exit_code == 0
 
 
-def test_compress_spring_existing_spring_file(
+def test_compress_fastq_existing_spring_file(
     first_read, second_read, spring_path, base_context
 ):
-    """Test to run the compress spring command"""
+    """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     assert spring_path.exists()
     # WHEN running the compress command with dry_run
     result = runner.invoke(
-        spring,
+        fastq,
         [
             "--first",
             str(first_read),
@@ -110,16 +110,16 @@ def test_compress_spring_existing_spring_file(
     assert result.exit_code == 1
 
 
-def test_compress_spring_valid_spring_file(
+def test_compress_fastq_valid_spring_file(
     first_read, second_read, spring_tmp_path, base_context
 ):
-    """Test to run the compress spring command"""
+    """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     assert not spring_tmp_path.exists()
     # WHEN running the compress command with dry_run
     result = runner.invoke(
-        spring,
+        fastq,
         [
             "--first",
             str(first_read),
@@ -134,16 +134,16 @@ def test_compress_spring_valid_spring_file(
     assert result.exit_code == 0
 
 
-def test_compress_spring_real(
+def test_compress_fastq_real(
     first_read, second_read, spring_tmp_path, real_base_context
 ):
-    """Test to run the compress spring command"""
+    """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     assert not spring_tmp_path.exists()
     # WHEN running the compress command with dry_run
     result = runner.invoke(
-        spring,
+        fastq,
         [
             "--first",
             str(first_read),
@@ -170,10 +170,10 @@ def nr_files(dirpath: pathlib.Path) -> int:
     return nr_files_indir
 
 
-def test_compress_spring_real_with_integrity(
+def test_compress_fastq_real_with_integrity(
     first_tmp_file, second_tmp_file, spring_tmp_path, real_base_context
 ):
-    """Test to run the compress spring command with integrity check"""
+    """Test to run the compress fastq command with integrity check"""
     # GIVEN the path to a existing two existing fastq files and a non existing spring
     runner = CliRunner()
     assert not spring_tmp_path.exists()
@@ -184,7 +184,7 @@ def test_compress_spring_real_with_integrity(
     assert nr_files(dir_path) == 2
     # WHEN running the compress command with an intergrity check
     result = runner.invoke(
-        spring,
+        fastq,
         [
             "--first",
             str(first_tmp_file),
@@ -204,10 +204,10 @@ def test_compress_spring_real_with_integrity(
     assert nr_files(dir_path) == 3
 
 
-def test_compress_spring_real_with_integrity_fail(
+def test_compress_fastq_real_with_integrity_fail(
     first_tmp_file, second_tmp_file, spring_tmp_path, real_base_context, mocker
 ):
-    """Test to run the compress spring command when integrity check fails"""
+    """Test to run the compress fastq command when integrity check fails"""
     # GIVEN the path to a existing two existing fastq files and a non existing spring
     runner = CliRunner()
     assert not spring_tmp_path.exists()
@@ -220,7 +220,7 @@ def test_compress_spring_real_with_integrity_fail(
     compare_cmd.compare_elements.return_value = False
     # WHEN running the compress command with an intergrity check
     result = runner.invoke(
-        spring,
+        fastq,
         [
             "--first",
             str(first_tmp_file),
@@ -233,7 +233,6 @@ def test_compress_spring_real_with_integrity_fail(
         obj=real_base_context,
     )
     # THEN assert the command succedes
-    print(result.__dict__)
     assert result.exit_code == 1
     # THEN assert that the spring file was deleted
     assert not spring_tmp_path.exists()

@@ -6,7 +6,7 @@ import click
 
 from crunchy.utils import find_fastq_pairs
 
-from .compress_cmd import spring as compress_spring_cmd
+from .compress_cmd import fastq as compress_fastq_cmd
 
 LOG = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ def spring(ctx, indir, spring_path, first, second, dry_run):
         spring_path = str(pair[2])
         try:
             ctx.invoke(
-                compress_spring_cmd,
+                compress_fastq_cmd,
                 first=first_fastq,
                 second=second_fastq,
                 spring_path=spring_path,
