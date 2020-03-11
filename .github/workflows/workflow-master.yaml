@@ -45,7 +45,7 @@ jobs:
       run: |
         pip install pytest
         pip install pytest-cov
-        pytest --cov=./
+        pytest --cov=/home/runner/work/crunchy/crunchy
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
