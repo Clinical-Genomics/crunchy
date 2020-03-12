@@ -241,4 +241,4 @@ class CramProcess(Process):
         self.run_command(parameters)
 
     def __repr__(self):
-        return f"SpringProcess:base_call:{self.base_call}"
+        return f"CramProcess:base_call:{self.base_call}, refgenome_path:{self.refgenome_path}"
