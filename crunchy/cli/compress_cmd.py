@@ -46,6 +46,9 @@ def compress():
 def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
     """Compress a pair of fastq files with spring"""
     LOG.info("Running compress fastq")
+    if dry_run:
+        LOG.info("Dry Run! No files will be created or deleted")
+
     spring_api = ctx.obj.get("spring_api")
     first = pathlib.Path(first)
     second = pathlib.Path(second)
@@ -79,8 +82,10 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
 
     success = True
     try:
-        ctx.invoke(compare, first=str(first), second=str(first_spring))
-        ctx.invoke(compare, first=str(second), second=str(second_spring))
+        ctx.invoke(compare, first=str(first), second=str(first_spring), dry_run=dry_run)
+        ctx.invoke(
+            compare, first=str(second), second=str(second_spring), dry_run=dry_run
+        )
     except click.Abort:
         LOG.error("Uncompressed spring differ from original fastqs")
         success = False
@@ -88,9 +93,11 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
         spring_path.unlink()
 
     LOG.info("Deleting decompressed spring files")
-    first_spring.unlink()
+    if not dry_run:
+        first_spring.unlink()
     LOG.info("%s deleted", first_spring)
-    second_spring.unlink()
+    if not dry_run:
+        second_spring.unlink()
     LOG.info("%s deleted", second_spring)
 
     if success:
@@ -115,6 +122,8 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
 def bam(ctx, bam_path, cram_path, dry_run):
     """Compress a bam file to cram format with samtools"""
     LOG.info("Running compress bam")
+    if dry_run:
+        LOG.info("Dry Run! No files will be created or deleted")
     cram_api = ctx.obj.get("cram_api")
     bam_path = pathlib.Path(bam_path)
     if not cram_path:
