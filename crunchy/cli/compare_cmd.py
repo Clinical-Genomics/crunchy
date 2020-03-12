@@ -15,16 +15,23 @@ LOG = logging.getLogger(__name__)
 @click.option(
     "--algorithm", "-a", type=click.Choice(["md5", "sha1", "sha256"]), default="sha256"
 )
-def compare(first, second, algorithm):
+@click.option("--dry-run", is_flag=True)
+def compare(first, second, algorithm, dry_run):
     """Compare two files by generating checksums. Fails if two files differ."""
     LOG.info("Running checksum")
+    if dry_run:
+        LOG.info("Dry Run!")
     checksums = []
+
     for _infile in [first, second]:
+        if dry_run:
+            continue
         _infile = pathlib.Path(_infile)
         checksums.append(get_checksum(_infile, algorithm))
 
-    if not compare_elements(checksums):
-        LOG.warning("Checksums for %s and %s are NOT the same", first, second)
-        raise click.Abort
+    if not dry_run:
+        if not compare_elements(checksums):
+            LOG.warning("Checksums for %s and %s are NOT the same", first, second)
+            raise click.Abort
 
     LOG.info("All checksums are the same")

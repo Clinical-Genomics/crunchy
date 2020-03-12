@@ -51,7 +51,7 @@ def test_compress_bam_valid_outpath(base_context, bam_path):
     runner = CliRunner()
     # WHEN running the compress command
     result = runner.invoke(
-        bam, ["--bam-path", bam_path, "--cram-path", outpath], obj=base_context,
+        bam, ["--bam-path", str(bam_path), "--cram-path", outpath], obj=base_context,
     )
     # THEN assert the command was succesful
     assert result.exit_code == 0
@@ -64,10 +64,39 @@ def test_compress_bam_existing_outpath(base_context, bam_path, cram_path):
     assert cram_path.exists()
     # WHEN running the compress command
     res = runner.invoke(
-        bam, ["--bam-path", bam_path, "--cram-path", cram_path], obj=base_context,
+        bam,
+        ["--bam-path", str(bam_path), "--cram-path", str(cram_path)],
+        obj=base_context,
+    )
+    # THEN the progam should abort since the cram file already exists
+    assert res.exit_code == 1
+
+
+def test_compress_bam_real_data(real_base_context, bam_tmp_file, cram_tmp_path):
+    """Test to run the compress bam command"""
+    # GIVEN the path to a bam file, a existing outpath and a cli runner
+    runner = CliRunner()
+    assert not cram_tmp_path.exists()
+    assert bam_tmp_file.exists()
+    dir_path = cram_tmp_path.parent
+    assert nr_files(dir_path) == 1
+    cram_api = real_base_context["cram_api"]
+
+    # WHEN running the compress command
+    res = runner.invoke(
+        bam,
+        ["--bam-path", str(bam_tmp_file), "--cram-path", str(cram_tmp_path)],
+        obj=real_base_context,
     )
     # THEN the progam should abort since file already exists
-    assert res.exit_code == 1
+    assert res.exit_code == 0
+    # THEN check that the cram file was created
+    assert cram_tmp_path.exists()
+    # THEN assert that the cram index was created
+    index_path = cram_api.get_index_path(cram_tmp_path)
+    assert index_path.exists()
+    # THEN assert that the three files exists. original bam, cram and cram index
+    assert nr_files(dir_path) == 3
 
 
 def test_compress_fastq_dry_run(first_read, second_read):
@@ -80,6 +109,29 @@ def test_compress_fastq_dry_run(first_read, second_read):
     result = runner.invoke(
         fastq,
         ["--first", str(first_read), "--second", str(second_read), "--dry-run"],
+        obj={},
+    )
+    # THEN assert the command was succesful even without a valid api
+    assert result.exit_code == 0
+
+
+def test_compress_fastq_dry_run_integrity(first_read, second_read):
+    """Test to run the compress fastq with integrity check in dry run mode"""
+    # GIVEN the path to a existing bam file and a cli runner
+    runner = CliRunner()
+    assert first_read.exists()
+    assert second_read.exists()
+    # WHEN running the compress command with dry_run
+    result = runner.invoke(
+        fastq,
+        [
+            "--first",
+            str(first_read),
+            "--second",
+            str(second_read),
+            "--dry-run",
+            "--check-integrity",
+        ],
         obj={},
     )
     # THEN assert the command was succesful even without a valid api

@@ -1,11 +1,11 @@
 """CLI functionality for crunchy"""
 import logging
-import textwrap
 
 import click
 import coloredlogs
 
 from crunchy.command import CramProcess, SpringProcess
+from crunchy.version import __version__
 
 from .auto_cmd import auto
 from .compare_cmd import compare
@@ -33,6 +33,7 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
     show_default=True,
     help="Number of threads to use for spring compression",
 )
+@click.version_option(__version__)
 @click.option(
     "--reference", "-r", help="Path to reference genome",
 )
@@ -73,6 +74,7 @@ def base_command(
     spring_api = SpringProcess(spring_binary, threads, tmp_dir)
     ctx.obj = {"spring_api": spring_api}
     cram_api = CramProcess(samtools_binary, reference, threads)
+    ctx.obj = {"cram_api": cram_api}
     LOG.info("Running crunchy")
 
 

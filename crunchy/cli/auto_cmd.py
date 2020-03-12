@@ -11,6 +11,12 @@ from .compress_cmd import fastq as compress_fastq_cmd
 LOG = logging.getLogger(__name__)
 
 
+def abort_if_false(ctx, param, value):
+    """Check if abort"""
+    if not value:
+        ctx.abort()
+
+
 @click.group()
 def auto():
     """Run whole pipeline by compressing, comparing and deleting original files.
@@ -34,11 +40,21 @@ def auto():
     type=click.Path(exists=True),
     help="Second in fastq pair to compare",
 )
+@click.option(
+    "--yes",
+    is_flag=True,
+    callback=abort_if_false,
+    expose_value=False,
+    prompt="Are you sure you want to compress and delete all fastqs",
+)
 @click.pass_context
-def spring(ctx, indir, spring_path, first, second, dry_run):
+def fastq(ctx, indir, spring_path, first, second, dry_run):
     """Run whole pipeline by compressing, comparing and deleting original fastqs.
     Either all fastq pairs below a directory or a given pair.
     """
+    if dry_run:
+        LOG.info("Dry Run! No files will be created or deleted")
+
     if indir:
         LOG.info(
             "This will recursively compress and delete fastqs in %s", indir,
@@ -65,18 +81,30 @@ def spring(ctx, indir, spring_path, first, second, dry_run):
         pairs = [(pathlib.Path(first), pathlib.Path(second), pathlib.Path(spring_path))]
 
     for pair in pairs:
-        first_fastq = str(pair[0])
-        second_fastq = str(pair[1])
-        spring_path = str(pair[2])
+        first_fastq = pair[0]
+        second_fastq = pair[1]
+        spring_path = pair[2]
         try:
             ctx.invoke(
                 compress_fastq_cmd,
-                first=first_fastq,
-                second=second_fastq,
-                spring_path=spring_path,
+                first=str(first_fastq),
+                second=str(second_fastq),
+                spring_path=str(spring_path),
                 dry_run=dry_run,
                 check_integrity=True,
             )
         except click.Abort:
             LOG.warning("Skip current and continue auto")
             continue
+
+        LOG.info("Deleting original fastqs")
+        if not dry_run:
+            first_fastq.unlink()
+            LOG.info("%s deleted", first_fastq)
+            second_fastq.unlink()
+            LOG.info("%s deleted", second_fastq)
+
+    LOG.info("crunchy auto fastq completed")
+
+
+auto.add_command(fastq)

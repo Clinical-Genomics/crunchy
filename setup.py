@@ -14,7 +14,7 @@ URL = "https://github.com/Clinical-Genomics/crunchy"
 EMAIL = "mans.magnusson@scilifelab.com"
 AUTHOR = "Mans Magnusson"
 REQUIRES_PYTHON = ">=3.6.0"
-VERSION = 0.2
+VERSION = None
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 
@@ -64,7 +64,7 @@ except FileNotFoundError:
 # Load the package's __version__.py module as a dictionary.
 ABOUT = {}
 if not VERSION:
-    with open(os.path.join(HERE, NAME, "__version__.py")) as f:
+    with open(os.path.join(HERE, NAME, "version.py")) as f:
         exec(f.read(), ABOUT)
 else:
     ABOUT["__version__"] = VERSION
