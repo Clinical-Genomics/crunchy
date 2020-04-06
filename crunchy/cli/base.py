@@ -72,9 +72,10 @@ def base_command(
     """
     coloredlogs.install(level=log_level)
     spring_api = SpringProcess(spring_binary, threads, tmp_dir)
-    ctx.obj = {"spring_api": spring_api}
+    ctx.obj = {}
+    ctx.obj["spring_api"] = spring_api
     cram_api = CramProcess(samtools_binary, reference, threads)
-    ctx.obj = {"cram_api": cram_api}
+    ctx.obj["cram_api"] = cram_api
     LOG.info("Running crunchy")
 
 

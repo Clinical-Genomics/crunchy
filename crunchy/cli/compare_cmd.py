@@ -25,6 +25,7 @@ def compare(first, second, algorithm, dry_run):
 
     for _infile in [first, second]:
         if dry_run:
+            checksums.append("dummy_checksum")
             continue
         _infile = pathlib.Path(_infile)
         checksums.append(get_checksum(_infile, algorithm))
@@ -34,4 +35,5 @@ def compare(first, second, algorithm, dry_run):
             LOG.warning("Checksums for %s and %s are NOT the same", first, second)
             raise click.Abort
 
+    LOG.info("Checksum: %s", checksums[0])
     LOG.info("All checksums are the same")

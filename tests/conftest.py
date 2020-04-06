@@ -2,12 +2,14 @@
 import logging
 import pathlib
 import shutil
+import sys
 
 import pytest
 
 from crunchy.command import CramProcess, SpringProcess
 
 LOG = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 @pytest.fixture(name="fixtures_dir")
@@ -23,7 +25,7 @@ def fixture_fixtures_dir():
 @pytest.fixture(name="reference_path")
 def fixture_reference_path(fixtures_dir):
     """Return the path to fasta reference"""
-    _file_path = fixtures_dir / "chr_m.fasta"
+    _file_path = fixtures_dir / "reference.fasta"
     return _file_path
 
 
@@ -58,25 +60,21 @@ def fixture_cram_path(fixtures_dir):
 @pytest.fixture(name="first_read")
 def fixture_first_read(fixtures_dir):
     """Return the path first read in read pair"""
-    _file_path = (
-        fixtures_dir / "fastq" / "CPCT12345678R_HJJLGCCXX_S1_L001_R1_001.fastq.gz"
-    )
+    _file_path = fixtures_dir / "fastq" / "TEST_R1_001.fq.gz"
     return _file_path
 
 
 @pytest.fixture(name="second_read")
 def fixture_second_read(fixtures_dir):
     """Return the path second read in read pair"""
-    _file_path = (
-        fixtures_dir / "fastq" / "CPCT12345678R_HJJLGCCXX_S1_L001_R2_001.fastq.gz"
-    )
+    _file_path = fixtures_dir / "fastq" / "TEST_R2_001.fq.gz"
     return _file_path
 
 
 @pytest.fixture(name="spring_path")
 def fixture_spring_path(fixtures_dir):
     """Return the path to a spring compressed file"""
-    _file_path = fixtures_dir / "spring" / "CPCT12345678R_HJJLGCCXX_S1_L001.spring"
+    _file_path = fixtures_dir / "spring" / "TEST.spring"
     return _file_path
 
 
@@ -303,4 +301,9 @@ class MockCramProcess:
         index_path = file_path.with_suffix(file_path.suffix + index_type)
         parameters = ["index", str(file_path), str(index_path)]
         self.run_command(parameters)
+        return True
+
+    @staticmethod
+    def self_check():
+        """Mocks the self test"""
         return True

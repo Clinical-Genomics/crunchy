@@ -26,11 +26,11 @@ class Process:
         """
         super(Process, self).__init__()
         self.binary = binary
-        LOG.debug("Initialising Process with binary: %s", self.binary)
+        LOG.info("Initialising Process with binary: %s", self.binary)
         self.base_call = [self.binary]
         if config:
             self.base_call.extend([config_parameter, config])
-        LOG.debug("Use base call %s", self.base_call)
+        LOG.info("Use base call %s", self.base_call)
         self._stdout = ""
         self._stderr = ""
 
@@ -239,6 +239,16 @@ class CramProcess(Process):
         index_path = self.get_index_path(file_path)
         parameters = ["index", str(file_path), str(index_path)]
         self.run_command(parameters)
+
+    def self_check(self):
+        """Run a check and see that all parameters are valid"""
+        LOG.info("Check that Cram process is correctly initialized")
+        if self.refgenome_path is None:
+            LOG.warning("Please specify the path to a reference genome")
+            raise SyntaxError
+        if not pathlib.Path(self.refgenome_path).exists():
+            LOG.warning("Reference genome %s does not exist", self.refgenome_path)
+            raise FileNotFoundError
 
     def __repr__(self):
         return f"CramProcess:base_call:{self.base_call}, refgenome_path:{self.refgenome_path}"

@@ -1,7 +1,9 @@
 """Code to test the CLI compress commands"""
 import logging
+import os
 import pathlib
 
+import pytest
 from click.testing import CliRunner
 
 from crunchy.cli import compare_cmd
@@ -20,15 +22,17 @@ def test_compress_cmd():
     assert result.exit_code == 0
 
 
-def test_compress_bam_dry_run(bam_tmp_file):
+def test_compress_bam_dry_run(bam_tmp_file, base_context):
     """Test to run the compress bam command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     bam_path = bam_tmp_file
     assert bam_path.exists()
     # WHEN running the compress command with dry_run
-    result = runner.invoke(bam, ["--bam-path", str(bam_path), "--dry-run"], obj={})
-    # THEN assert the command was succesful even without a valid api
+    result = runner.invoke(
+        bam, ["--bam-path", str(bam_path), "--dry-run"], obj=base_context
+    )
+    # THEN assert the command was succesful
     assert result.exit_code == 0
 
 
