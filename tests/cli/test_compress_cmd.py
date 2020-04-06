@@ -1,13 +1,16 @@
 """Code to test the CLI compress commands"""
 import logging
+import os
 import pathlib
 
+import pytest
 from click.testing import CliRunner
 
 from crunchy.cli import compare_cmd
 from crunchy.cli.compress_cmd import bam, compress, fastq
 
 LOG = logging.getLogger(__name__)
+GITHUB = os.getenv("GITHUB")
 
 
 def test_compress_cmd():
@@ -72,6 +75,7 @@ def test_compress_bam_existing_outpath(base_context, bam_path, cram_path):
     assert res.exit_code == 1
 
 
+@pytest.mark.skipif(GITHUB, reason="Problems with reading referens on github")
 def test_compress_bam_real_data(real_base_context, bam_tmp_file, cram_tmp_path):
     """Test to run the compress bam command"""
     # GIVEN the path to a bam file, a existing outpath and a cli runner
