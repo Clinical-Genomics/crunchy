@@ -34,4 +34,5 @@ def compare(first, second, algorithm, dry_run):
             LOG.warning("Checksums for %s and %s are NOT the same", first, second)
             raise click.Abort
 
+    LOG.info("Checksum: %s", checksums[0])
     LOG.info("All checksums are the same")

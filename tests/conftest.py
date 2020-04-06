@@ -2,12 +2,14 @@
 import logging
 import pathlib
 import shutil
+import sys
 
 import pytest
 
 from crunchy.command import CramProcess, SpringProcess
 
 LOG = logging.getLogger(__name__)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 @pytest.fixture(name="fixtures_dir")

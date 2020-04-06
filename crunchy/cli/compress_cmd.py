@@ -95,10 +95,10 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
     LOG.info("Deleting decompressed spring files")
     if not dry_run:
         first_spring.unlink()
-    LOG.info("%s deleted", first_spring)
+        LOG.info("%s deleted", first_spring)
     if not dry_run:
         second_spring.unlink()
-    LOG.info("%s deleted", second_spring)
+        LOG.info("%s deleted", second_spring)
 
     if success:
         LOG.info("Files are identical, compression succesfull")
