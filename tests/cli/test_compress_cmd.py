@@ -10,7 +10,6 @@ from crunchy.cli import compare_cmd
 from crunchy.cli.compress_cmd import bam, compress, fastq
 
 LOG = logging.getLogger(__name__)
-GITHUB = os.getenv("GITHUB")
 
 
 def test_compress_cmd():
@@ -23,15 +22,17 @@ def test_compress_cmd():
     assert result.exit_code == 0
 
 
-def test_compress_bam_dry_run(bam_tmp_file):
+def test_compress_bam_dry_run(bam_tmp_file, base_context):
     """Test to run the compress bam command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
     bam_path = bam_tmp_file
     assert bam_path.exists()
     # WHEN running the compress command with dry_run
-    result = runner.invoke(bam, ["--bam-path", str(bam_path), "--dry-run"], obj={})
-    # THEN assert the command was succesful even without a valid api
+    result = runner.invoke(
+        bam, ["--bam-path", str(bam_path), "--dry-run"], obj=base_context
+    )
+    # THEN assert the command was succesful
     assert result.exit_code == 0
 
 
@@ -75,7 +76,6 @@ def test_compress_bam_existing_outpath(base_context, bam_path, cram_path):
     assert res.exit_code == 1
 
 
-@pytest.mark.skipif(GITHUB, reason="Problems with reading referens on github")
 def test_compress_bam_real_data(real_base_context, bam_tmp_file, cram_tmp_path):
     """Test to run the compress bam command"""
     # GIVEN the path to a bam file, a existing outpath and a cli runner

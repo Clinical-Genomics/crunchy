@@ -304,6 +304,6 @@ class MockCramProcess:
         return True
 
     @staticmethod
-    def self_test():
+    def self_check():
         """Mocks the self test"""
         return True
