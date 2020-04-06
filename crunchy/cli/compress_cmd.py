@@ -47,7 +47,7 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
     """Compress a pair of fastq files with spring"""
     LOG.info("Running compress fastq")
     if dry_run:
-        LOG.info("Dry Run! No files will be created or deleted")
+        LOG.warning("Dry Run! No files will be created or deleted")
 
     spring_api = ctx.obj.get("spring_api")
     first = pathlib.Path(first)

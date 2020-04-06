@@ -25,6 +25,7 @@ def compare(first, second, algorithm, dry_run):
 
     for _infile in [first, second]:
         if dry_run:
+            checksums.append("dummy_checksum")
             continue
         _infile = pathlib.Path(_infile)
         checksums.append(get_checksum(_infile, algorithm))
