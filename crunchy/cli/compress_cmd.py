@@ -125,6 +125,10 @@ def bam(ctx, bam_path, cram_path, dry_run):
     if dry_run:
         LOG.info("Dry Run! No files will be created or deleted")
     cram_api = ctx.obj.get("cram_api")
+    try:
+        cram_api.self_check()
+    except (SyntaxError, FileNotFoundError):
+        raise click.Abort
     bam_path = pathlib.Path(bam_path)
     if not cram_path:
         cram_path = cram_outpath(bam_path)
