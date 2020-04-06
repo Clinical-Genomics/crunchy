@@ -302,3 +302,8 @@ class MockCramProcess:
         parameters = ["index", str(file_path), str(index_path)]
         self.run_command(parameters)
         return True
+
+    @staticmethod
+    def self_test():
+        """Mocks the self test"""
+        return True
