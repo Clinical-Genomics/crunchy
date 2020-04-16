@@ -8,14 +8,14 @@ import pathlib
 LOG = logging.getLogger(__name__)
 
 
-def compare_elements(elements):
+def compare_elements(elements: list):
     """Check if all elements are the same"""
     if len(set(elements)) == 1:
         return True
     return False
 
 
-def get_checksum(infile: pathlib.Path, algorithm: str = "sha256"):
+def get_checksum(infile: pathlib.Path, algorithm: str = "sha256") -> str:
     """Get the checksum for a file"""
     LOG.info("Create checksum for %s", infile)
     if algorithm == "sha1":
@@ -36,7 +36,7 @@ def get_checksum(infile: pathlib.Path, algorithm: str = "sha256"):
     return generate_checksum(content, hash_obj)
 
 
-def generate_checksum(content, hash_obj):
+def generate_checksum(content: str, hash_obj: "hashlib._HASH") -> str:
     """Return the checksum of a file
 
     Args:
