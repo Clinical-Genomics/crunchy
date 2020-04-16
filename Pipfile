@@ -11,6 +11,10 @@ coloredlogs = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+pylint = "*"
+flake8 = "*"
+black = "==19.10b0"
+crunchy = {editable = true,path = "."}
 
 [requires]
 python_version = "3.7"
