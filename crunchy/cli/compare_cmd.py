@@ -11,19 +11,34 @@ LOG = logging.getLogger(__name__)
 
 @click.command()
 @click.option("--first", "-f", type=click.Path(exists=True), required=True)
-@click.option("--second", "-s", type=click.Path(exists=True), required=True)
+@click.option("--second", "-s", type=click.Path(exists=True))
+@click.option(
+    "--checksum", "-c", help="If the file should be compared to a checksum directly",
+)
 @click.option(
     "--algorithm", "-a", type=click.Choice(["md5", "sha1", "sha256"]), default="sha256"
 )
 @click.option("--dry-run", is_flag=True)
-def compare(first, second, algorithm, dry_run):
-    """Compare two files by generating checksums. Fails if two files differ."""
+def compare(first, second, algorithm, checksum, dry_run):
+    """Compare two files by generating checksums. Fails if two files differ.
+
+    Use --first and --checksum if a file should be compared directly to a checksum
+    """
     LOG.info("Running checksum")
+    if second and checksum:
+        LOG.error("Use --first only in combination with --checksum")
+        raise click.Abort
+
     if dry_run:
         LOG.info("Dry Run!")
+
     checksums = []
+    if checksum:
+        checksums.append(checksum)
 
     for _infile in [first, second]:
+        if not _infile:
+            continue
         if dry_run:
             checksums.append("dummy_checksum")
             continue
