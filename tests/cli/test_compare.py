@@ -32,7 +32,7 @@ def test_compare_checksum(first_read):
 
 
 def test_compare_checksum_two_reads(first_read):
-    """Test to compare a file with itself"""
+    """Test to compare two files AND a checksum"""
     # GIVEN the path to a gzipped file, a checksum and a cli runner
     checksum = get_checksum(first_read)
     runner = CliRunner()
@@ -42,6 +42,20 @@ def test_compare_checksum_two_reads(first_read):
         ["compare", "-f", str(first_read), "-s", str(first_read), "-c", checksum],
     )
     # THEN assert the command fails since two files can not be compared to one checksum
+    assert result.exit_code == 1
+
+
+def test_compare_wrong_checksum(first_read, second_read):
+    """Test to compare a file with a wrong checksum"""
+    # GIVEN the path to a gzipped file and a cli runner
+    runner = CliRunner()
+    # GIVEN a mismatching checksum
+    checksum = get_checksum(second_read)
+    # WHEN running the compare command with one file and the wrong checksum
+    result = runner.invoke(
+        base_command, ["compare", "-f", str(first_read), "-c", checksum],
+    )
+    # THEN assert the command fails checksums differ
     assert result.exit_code == 1
 
 
