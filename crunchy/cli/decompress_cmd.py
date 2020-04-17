@@ -29,7 +29,7 @@ def decompress():
     "--second",
     "-s",
     type=click.Path(exists=False),
-    help="Fastq file that spring will be decompressed to. Second read in pair",
+    help="Fastq file that spring archive will be decompressed to. Second read in pair",
 )
 @click.option(
     "--first-checksum", help="Checksum from the original fastq file, first in pair",
