@@ -23,7 +23,7 @@ def decompress():
     "--first",
     "-f",
     type=click.Path(exists=False),
-    help="Fastq file that spring will be decompressed to. First read in pair",
+    help="Fastq file that spring archive will be decompressed to. First read in pair",
 )
 @click.option(
     "--second",
