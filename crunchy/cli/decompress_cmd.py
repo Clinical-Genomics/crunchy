@@ -41,28 +41,30 @@ def decompress():
     "--dry-run", is_flag=True, help="Skip deleting original files",
 )
 @click.pass_context
-def spring(ctx, spring_path, first, second, first_checksum, second_checksum, dry_run):
+def spring(
+    ctx, spring_path, first_read, second_read, first_checksum, second_checksum, dry_run
+):
     """Decompress a spring file to fastq files"""
     LOG.info("Running decompress spring")
     spring_api = ctx.obj.get("spring_api")
     spring_path = pathlib.Path(spring_path)
 
-    if not (first or second):
+    if not (first_read or second_read):
         LOG.warning("No filenames provided. Guess fastq file names")
         fastqs = fastq_outpaths(spring_path)
-        first = fastqs[0]
-        second = fastqs[1]
+        first_read = fastqs[0]
+        second_read = fastqs[1]
 
-    first = pathlib.Path(first)
-    second = pathlib.Path(second)
-    if first.exists() or second.exists():
+    first_read = pathlib.Path(first_read)
+    second_read = pathlib.Path(second_read)
+    if first_read.exists() or second_read.exists():
         LOG.error("Outpath(s) already exists! Specify new with '-f', '-s'")
         raise click.Abort()
 
     decompress_spring(
         spring_path=spring_path,
-        first=first,
-        second=second,
+        first=first_read,
+        second=second_read,
         spring_api=spring_api,
         dry_run=dry_run,
     )
@@ -72,15 +74,17 @@ def spring(ctx, spring_path, first, second, first_checksum, second_checksum, dry
         return
 
     try:
-        ctx.invoke(compare, first=str(first), checksum=first_checksum, dry_run=dry_run)
         ctx.invoke(
-            compare, first=str(second), checksum=second_checksum, dry_run=dry_run
+            compare, first=str(first_read), checksum=first_checksum, dry_run=dry_run
+        )
+        ctx.invoke(
+            compare, first=str(second_read), checksum=second_checksum, dry_run=dry_run
         )
     except click.Abort:
         LOG.error("Uncompressed spring differ from given checksum")
         LOG.info("Deleting decompressed fastq files")
-        first.unlink()
-        second.unlink()
+        first_read.unlink()
+        second_read.unlink()
         raise click.Abort
 
     LOG.info("Spring file decompressed and verified")

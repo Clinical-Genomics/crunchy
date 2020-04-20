@@ -75,8 +75,8 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
     ctx.invoke(
         decompress_spring_cmd,
         spring_path=str(spring_path),
-        first=str(first_spring),
-        second=str(second_spring),
+        first_read=str(first_spring),
+        second_read=str(second_spring),
         dry_run=dry_run,
     )
 
