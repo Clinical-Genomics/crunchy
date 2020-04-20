@@ -208,6 +208,9 @@ class MockSpringProcess:
         self.threads = threads
         self.base_call = [self.binary]
         self.tmp = tmp_dir or "./tmp"
+        self._create_output = False
+        self._fastq1 = None
+        self._fastq2 = None
 
     @staticmethod
     def run_command(parameters=None):
@@ -221,6 +224,10 @@ class MockSpringProcess:
         """Run the spring decompress command"""
         parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
         self.run_command(parameters)
+        if self._create_output:
+            LOG.info("Create output fastq files %s and %s", self._fastq1, self._fastq2)
+            shutil.copy(str(self._fastq1), str(first))
+            shutil.copy(str(self._fastq2), str(second))
         return True
 
     def compress(

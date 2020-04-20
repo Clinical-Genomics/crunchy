@@ -2,11 +2,12 @@
 
 import logging
 import pathlib
+from typing import Iterator
 
 LOG = logging.getLogger(__name__)
 
 
-def find_fastq_pairs(directory: pathlib.Path) -> list:
+def find_fastq_pairs(directory: pathlib.Path) -> Iterator[tuple]:
     """Loop over all subdirectories and return all fastq pairs found
 
     The function will assume the naming convention used by illumina and described in detail:

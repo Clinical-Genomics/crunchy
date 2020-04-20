@@ -6,6 +6,7 @@ from click.testing import CliRunner
 
 from crunchy.cli.decompress_cmd import cram, decompress, spring
 from crunchy.files import fastq_outpaths
+from crunchy.integrity import get_checksum
 
 
 def nr_files(dirpath: pathlib.Path) -> int:
@@ -19,7 +20,7 @@ def nr_files(dirpath: pathlib.Path) -> int:
 
 
 def test_decompress_cram(base_context, cram_tmp_file, bam_tmp_path):
-    """Test to run the compress cram command"""
+    """Test to run the decompress cram command"""
     # GIVEN a cli runner
     runner = CliRunner()
     # WHEN running the decompress cram command
@@ -31,7 +32,7 @@ def test_decompress_cram(base_context, cram_tmp_file, bam_tmp_path):
 
 
 def test_decompress_cmd():
-    """Test to run the compress base command"""
+    """Test to run the decompress base command"""
     # GIVEN a cli runner
     runner = CliRunner()
     # WHEN running the compress command with dry_run
@@ -41,34 +42,27 @@ def test_decompress_cmd():
 
 
 def test_decompress_spring_non_existing_spring(base_context, spring_tmp_path):
-    """Test to run the compress base command"""
+    """Test to run decompress spring with a non existing spring file"""
     # GIVEN a cli runner
     runner = CliRunner()
+    # GIVEN non existing spring file
+    assert not spring_tmp_path.exists()
     # WHEN running the de compress command with non existing spring file
-    result = runner.invoke(spring, [spring_tmp_path], obj=base_context)
+    result = runner.invoke(spring, [str(spring_tmp_path)], obj=base_context)
     # THEN assert the command fails since the spring file needs to exist
-    assert result.exit_code == 1
-
-
-def test_decompress_spring_non_existing_spring_dry_run(base_context, spring_tmp_path):
-    """Test to run the compress base command"""
-    # GIVEN a cli runner
-    runner = CliRunner()
-    # WHEN running the de compress command with non existing spring file
-    result = runner.invoke(
-        spring, [str(spring_tmp_path), "--dry-run"], obj=base_context
-    )
-    # THEN assert the command fails since file does not exist
     assert result.exit_code == 2
 
 
 def test_decompress_spring_no_fastq(spring_tmp_file, base_context):
-    """Test to run the compress base command"""
+    """Test to run decompress spring command without specifying the out paths"""
     # GIVEN a cli runner
     runner = CliRunner()
+    # GIVEN two non existing fastq paths
+    fastq1, fastq2 = fastq_outpaths(spring_tmp_file)
+    assert not (fastq1.exists() or fastq2.exists())
     # WHEN running the decompress command without fastq files
     result = runner.invoke(spring, [str(spring_tmp_file)], obj=base_context)
-    # THEN assert the command was succesful
+    # THEN assert the command was succesful since crunchy creates the file names
     assert result.exit_code == 0
 
 
@@ -105,6 +99,120 @@ def test_decompress_spring_with_fastq(
     )
     # THEN assert the command was succesful
     assert result.exit_code == 0
+
+
+def test_decompress_spring_with_result(
+    spring_tmp_file,
+    first_tmp_path,
+    second_tmp_path,
+    base_context,
+    first_read,
+    second_read,
+):
+    """Test to run decompress spring command where the mock creates output files"""
+    # GIVEN a cli runner
+    runner = CliRunner()
+    # GIVEN fasq paths that does not exist
+    assert not (first_tmp_path.exists() or second_tmp_path.exists())
+    # GIVEN a mock that produces output
+    base_context["spring_api"]._create_output = True
+    base_context["spring_api"]._fastq1 = first_read
+    base_context["spring_api"]._fastq2 = second_read
+    # WHEN running the decompress command with fastq files
+    result = runner.invoke(
+        spring,
+        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", str(second_tmp_path)],
+        obj=base_context,
+    )
+    # THEN assert the command was succesful
+    assert result.exit_code == 0
+    # THEN assert that the fastq files where created by the mock
+    assert first_tmp_path.exists() and second_tmp_path.exists()
+
+
+def test_decompress_spring_with_fastq_and_integrity_check(
+    spring_tmp_file,
+    first_tmp_path,
+    second_tmp_path,
+    base_context,
+    first_read,
+    second_read,
+):
+    """Test to run decompress spring command with integrity check"""
+    # GIVEN a cli runner
+    runner = CliRunner()
+    # GIVEN fasq paths that does not exist
+    assert not (first_tmp_path.exists() or second_tmp_path.exists())
+    # GIVEN a mock that produces output
+    base_context["spring_api"]._create_output = True
+    base_context["spring_api"]._fastq1 = first_read
+    base_context["spring_api"]._fastq2 = second_read
+    # GIVEN checksums for the original fastq files
+    checksum1 = get_checksum(first_read)
+    checksum2 = get_checksum(second_read)
+    # WHEN running the decompress command with fastq files
+    result = runner.invoke(
+        spring,
+        [
+            str(spring_tmp_file),
+            "-f",
+            str(first_tmp_path),
+            "-s",
+            str(second_tmp_path),
+            "--first-checksum",
+            checksum1,
+            "--second-checksum",
+            checksum2,
+        ],
+        obj=base_context,
+    )
+    # THEN assert the command was succesful
+    assert result.exit_code == 0
+    # THEN assert that the integrity check was succesfull
+    assert first_tmp_path.exists() and second_tmp_path.exists()
+
+
+def test_decompress_spring_with_fastq_failing_integrity_check(
+    spring_tmp_file,
+    first_tmp_path,
+    second_tmp_path,
+    base_context,
+    first_read,
+    second_read,
+):
+    """Test to run decompress spring command with a failing integrity check"""
+    # GIVEN a cli runner
+    runner = CliRunner()
+    # GIVEN fasq paths that does not exist
+    assert not (first_tmp_path.exists() or second_tmp_path.exists())
+    # GIVEN a mock that produces output
+    base_context["spring_api"]._create_output = True
+    base_context["spring_api"]._fastq1 = first_read
+    base_context["spring_api"]._fastq2 = second_read
+    # GIVEN checksums for the original fastq files
+    checksum1 = get_checksum(first_read)
+    # GIVEN wrong checksum for second read
+    checksum2 = get_checksum(first_read)
+    # WHEN running the decompress command with fastq files
+    result = runner.invoke(
+        spring,
+        [
+            str(spring_tmp_file),
+            "-f",
+            str(first_tmp_path),
+            "-s",
+            str(second_tmp_path),
+            "--first-checksum",
+            checksum1,
+            "--second-checksum",
+            checksum2,
+        ],
+        obj=base_context,
+    )
+    # THEN assert the command was succesful
+    assert result.exit_code == 1
+    # THEN assert that the fastq files are deleted since check failed
+    assert not (first_tmp_path.exists() or second_tmp_path.exists())
 
 
 def test_decompress_spring_with_fastq_real_run(
