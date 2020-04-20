@@ -22,7 +22,9 @@ LOG = logging.getLogger(__name__)
 def compare(first, second, algorithm, checksum, dry_run):
     """Compare two files by generating checksums. Fails if two files differ.
 
-    Use --first and --checksum if a file should be compared directly to a checksum
+    Either the checksum of two files can be compared. Files will be decompressed and checksums
+    calculated. Or the checksum of a file can be compared to a checksum string given on the command
+    line. Use --first and --checksum if a file should be compared directly to a checksum.
     """
     LOG.info("Running checksum")
     if second and checksum:

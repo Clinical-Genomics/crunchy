@@ -20,13 +20,13 @@ def decompress():
 @click.command()
 @click.argument("spring-path", type=click.Path(exists=True))
 @click.option(
-    "--first",
+    "--first-read",
     "-f",
     type=click.Path(exists=False),
     help="Fastq file that spring archive will be decompressed to. First read in pair",
 )
 @click.option(
-    "--second",
+    "--second-read",
     "-s",
     type=click.Path(exists=False),
     help="Fastq file that spring archive will be decompressed to. Second read in pair",
