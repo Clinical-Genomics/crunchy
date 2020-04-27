@@ -1,4 +1,5 @@
 """CLI functions to compress"""
+import json
 import logging
 import pathlib
 
@@ -9,6 +10,7 @@ from crunchy.cli.decompress_cmd import spring as decompress_spring_cmd
 from crunchy.cli.utils import file_exists
 from crunchy.compress import compress_cram, compress_spring
 from crunchy.files import cram_outpath, spring_outpath
+from crunchy.integrity import get_checksum
 
 LOG = logging.getLogger(__name__)
 
@@ -20,14 +22,14 @@ def compress():
 
 @click.command()
 @click.option(
-    "--first",
+    "--first-read",
     "-f",
     type=click.Path(exists=True),
     required=True,
     help="First read in pair",
 )
 @click.option(
-    "--second",
+    "--second-read",
     "-s",
     type=click.Path(exists=True),
     required=True,
@@ -42,35 +44,67 @@ def compress():
     help="If the integrity of the files should be checked",
 )
 @click.option("--dry-run", is_flag=True)
+@click.option(
+    "--metadata-file",
+    is_flag=True,
+    help="If a json file with metada should be produced",
+)
 @click.pass_context
-def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
+def fastq(
+    ctx, first_read, second_read, spring_path, dry_run, check_integrity, metadata_file
+):
     """Compress a pair of fastq files with spring"""
     LOG.info("Running compress fastq")
     if dry_run:
         LOG.warning("Dry Run! No files will be created or deleted")
 
     spring_api = ctx.obj.get("spring_api")
-    first = pathlib.Path(first)
-    second = pathlib.Path(second)
+    first_read = pathlib.Path(first_read)
+    second_read = pathlib.Path(second_read)
     if not spring_path:
-        spring_path = spring_outpath(first)
+        spring_path = spring_outpath(first_read)
     else:
         spring_path = pathlib.Path(spring_path)
     file_exists(spring_path, exists=False)
 
     compress_spring(
-        first=first,
-        second=second,
+        first_read=first_read,
+        second_read=second_read,
         outfile=spring_path,
         spring_api=spring_api,
         dry_run=dry_run,
     )
 
+    metadata = []
+    first_checksum = get_checksum(infile=first_read)
+    metadata.append(
+        {
+            "path": str(first_read.absolute()),
+            "file": "first_read",
+            "checksum": first_checksum,
+        }
+    )
+    second_checksum = get_checksum(infile=second_read)
+    metadata.append(
+        {
+            "path": str(second_read.absolute()),
+            "file": "second_read",
+            "checksum": second_checksum,
+        }
+    )
+    metadata.append({"path": str(spring_path.absolute()), "file": "spring"})
+
+    if metadata_file:
+        metadata_path = spring_path.with_suffix(".json")
+        with open(metadata_path, "w") as out:
+            LOG.info("Dumping spring metadata to %s", metadata_path)
+            json.dump(metadata, out, indent=2)
+
     if not check_integrity:
         return
 
-    first_spring = pathlib.Path(first).with_suffix(".spring.fastq")
-    second_spring = pathlib.Path(second).with_suffix(".spring.fastq")
+    first_spring = pathlib.Path(first_read).with_suffix(".spring.fastq")
+    second_spring = pathlib.Path(second_read).with_suffix(".spring.fastq")
 
     ctx.invoke(
         decompress_spring_cmd,
@@ -82,9 +116,11 @@ def fastq(ctx, first, second, spring_path, dry_run, check_integrity):
 
     success = True
     try:
-        ctx.invoke(compare, first=str(first), second=str(first_spring), dry_run=dry_run)
         ctx.invoke(
-            compare, first=str(second), second=str(second_spring), dry_run=dry_run
+            compare, first=str(first_read), checksum=first_checksum, dry_run=dry_run
+        )
+        ctx.invoke(
+            compare, first=str(second_read), checksum=second_checksum, dry_run=dry_run
         )
     except click.Abort:
         LOG.error("Uncompressed spring differ from original fastqs")

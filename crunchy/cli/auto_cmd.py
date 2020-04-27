@@ -87,8 +87,8 @@ def fastq(ctx, indir, spring_path, first, second, dry_run):
         try:
             ctx.invoke(
                 compress_fastq_cmd,
-                first=str(first_fastq),
-                second=str(second_fastq),
+                first_read=str(first_fastq),
+                second_read=str(second_fastq),
                 spring_path=str(spring_path),
                 dry_run=dry_run,
                 check_integrity=True,

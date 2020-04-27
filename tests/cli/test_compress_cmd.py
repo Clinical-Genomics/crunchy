@@ -1,9 +1,7 @@
 """Code to test the CLI compress commands"""
 import logging
-import os
 import pathlib
 
-import pytest
 from click.testing import CliRunner
 
 from crunchy.cli import compare_cmd
@@ -112,7 +110,13 @@ def test_compress_fastq_dry_run(first_read, second_read):
     # WHEN running the compress command with dry_run
     result = runner.invoke(
         fastq,
-        ["--first", str(first_read), "--second", str(second_read), "--dry-run"],
+        [
+            "--first-read",
+            str(first_read),
+            "--second-read",
+            str(second_read),
+            "--dry-run",
+        ],
         obj={},
     )
     # THEN assert the command was succesful even without a valid api
@@ -129,9 +133,9 @@ def test_compress_fastq_dry_run_integrity(first_read, second_read):
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--dry-run",
             "--check-integrity",
@@ -153,9 +157,9 @@ def test_compress_fastq_existing_spring_file(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--spring-path",
             str(spring_path),
@@ -177,9 +181,9 @@ def test_compress_fastq_valid_spring_file(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--spring-path",
             str(spring_tmp_path),
@@ -201,9 +205,9 @@ def test_compress_fastq_real(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--spring-path",
             str(spring_tmp_path),
@@ -242,9 +246,9 @@ def test_compress_fastq_real_with_integrity(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_tmp_file),
-            "--second",
+            "--second-read",
             str(second_tmp_file),
             "--spring-path",
             str(spring_tmp_path),
@@ -278,9 +282,9 @@ def test_compress_fastq_real_with_integrity_fail(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_tmp_file),
-            "--second",
+            "--second-read",
             str(second_tmp_file),
             "--spring-path",
             str(spring_tmp_path),
