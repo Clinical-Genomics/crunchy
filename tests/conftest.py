@@ -135,6 +135,13 @@ def fixture_cram_tmp_index_path(cram_tmp_path, real_cram_api):
     return _index_path
 
 
+@pytest.fixture(name="metadata_tmp_path")
+def fixture_metadata_tmp_path(spring_tmp_path):
+    """Return the path to a nonexisting temporary spring metadata file"""
+    _file_path = spring_tmp_path.with_suffix(".json")
+    return _file_path
+
+
 # Paths to existing temporary files #
 
 
@@ -191,9 +198,9 @@ def fixture_checksum_second_read(second_read):
 # Fixtures for metadata
 
 
-@pytest.fixture(name="metadata")
-def fixture_metadata(
-    first_read, second_read, spring_path, checksum_first_read, checksum_second_read
+@pytest.fixture(name="spring_metadata")
+def fixture_spring_metadata(
+    first_read, second_read, spring_tmp_path, checksum_first_read, checksum_second_read
 ):
     """Return metada information"""
     metadata = [
@@ -209,7 +216,7 @@ def fixture_metadata(
             "checksum": checksum_second_read,
             "algorithm": "sha256",
         },
-        {"path": str(spring_path.absolute()), "file": "spring"},
+        {"path": str(spring_tmp_path.absolute()), "file": "spring"},
     ]
     return metadata
 

@@ -33,3 +33,15 @@ def test_get_fastq_info(first_read):
 
     # THEN assert that the checksum is there
     assert isinstance(res["checksum"], str)
+
+
+def test_dump_metadata(spring_metadata, metadata_tmp_path):
+    """Test to dump some metadata in json format"""
+    # GIVEN some metadata and the path to a metadata file that does not exist
+    assert not metadata_tmp_path.exists()
+
+    # WHEN dumping the metadata
+    metadata.dump_spring_metadata(spring_metadata)
+
+    # THEN assert that the metadata file was created
+    assert metadata_tmp_path.exists()
