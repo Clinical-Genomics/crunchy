@@ -13,6 +13,11 @@ About changelog [here](https://keepachangelog.com/en/1.0.0/)
 ## [0.4]
 
 ### Added
+- Option to output a metadata file for a spring archive with original fastq paths and checksums
+
+## [0.4]
+
+### Added
 
 - Option to check the integrity when unpacking a spring archive
 
