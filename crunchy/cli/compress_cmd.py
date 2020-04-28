@@ -78,8 +78,9 @@ def fastq(
         first_read=first_read, second_read=second_read, spring=spring_path
     )
 
+    metadata_path = None
     if metadata_file:
-        dump_spring_metadata(metadata)
+        metadata_path = dump_spring_metadata(metadata)
 
     if not check_integrity:
         return
@@ -95,27 +96,29 @@ def fastq(
         dry_run=dry_run,
     )
 
-    first_checksum = None
-    second_checksum = None
+    checksums = [None, None]
     for file_info in metadata:
         if file_info["file"] == "first_read":
-            first_checksum = file_info["checksum"]
+            checksums[0] = file_info["checksum"]
         elif file_info["file"] == "second_read":
-            second_checksum = file_info["checksum"]
+            checksums[1] = file_info["checksum"]
 
     success = True
     try:
         ctx.invoke(
-            compare, first=str(first_read), checksum=first_checksum, dry_run=dry_run
+            compare, first=str(first_read), checksum=checksums[0], dry_run=dry_run
         )
         ctx.invoke(
-            compare, first=str(second_read), checksum=second_checksum, dry_run=dry_run
+            compare, first=str(second_read), checksum=checksums[1], dry_run=dry_run
         )
     except click.Abort:
         LOG.error("Uncompressed spring differ from original fastqs")
         success = False
         LOG.info("Deleting compressed spring file %s", spring_path)
         spring_path.unlink()
+        if metadata_file:
+            LOG.info("Deleting metadata file %s", metadata_path)
+            metadata_path.unlink()
 
     LOG.info("Deleting decompressed spring files")
     if not dry_run:
@@ -124,10 +127,9 @@ def fastq(
         second_spring.unlink()
         LOG.info("%s deleted", second_spring)
 
-    if success:
-        LOG.info("Files are identical, compression succesfull")
-    else:
+    if not success:
         raise click.Abort
+    LOG.info("Files are identical, compression succesfull")
 
 
 @click.command()

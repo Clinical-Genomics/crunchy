@@ -34,10 +34,13 @@ def fetch_spring_metadata(
     return metadata
 
 
-def dump_spring_metadata(metadata: list):
+def dump_spring_metadata(metadata: list) -> Path:
     """Write spring metadata to json file
 
     Path to metadata is the same as the path to spring archive with suffix .json instead of .spring
+
+    Returns:
+        metadata_path
     """
     spring_path = None
     for file_info in metadata:
@@ -48,3 +51,4 @@ def dump_spring_metadata(metadata: list):
     with open(metadata_path, "w") as out:
         LOG.info("Dumping spring metadata to %s", metadata_path)
         json.dump(metadata, out, indent=2)
+    return metadata_path
