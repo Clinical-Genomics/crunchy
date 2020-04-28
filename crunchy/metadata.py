@@ -1,4 +1,5 @@
 """Functions that collects metadata"""
+
 import json
 import logging
 from pathlib import Path
@@ -6,6 +7,16 @@ from pathlib import Path
 from crunchy.integrity import get_checksum
 
 LOG = logging.getLogger(__name__)
+
+
+def get_fastq_info(fastq: Path, tag: str, algorithm) -> dict:
+    """Get the necessary information about a fastq file and return it in a dict"""
+    fastq_info = {"file": tag}
+    fastq_info["checksum"] = get_checksum(infile=fastq, algorithm=algorithm)
+    fastq_info["path"] = str(fastq.absolute())
+    fastq_info["algorithm"] = algorithm
+
+    return fastq_info
 
 
 def fetch_spring_metadata(
@@ -16,24 +27,8 @@ def fetch_spring_metadata(
     This means that for each file the original paths and checksums are stored in a dict.
     """
     metadata = []
-    first_checksum = get_checksum(infile=first_read, algorithm=algorithm)
-    metadata.append(
-        {
-            "path": str(first_read.absolute()),
-            "file": "first_read",
-            "checksum": first_checksum,
-            "algorithm": algorithm,
-        }
-    )
-    second_checksum = get_checksum(infile=second_read)
-    metadata.append(
-        {
-            "path": str(second_read.absolute()),
-            "file": "second_read",
-            "checksum": second_checksum,
-            "algorithm": algorithm,
-        }
-    )
+    metadata.append(get_fastq_info(first_read, "first_read", algorithm))
+    metadata.append(get_fastq_info(second_read, "second_read", algorithm))
     metadata.append({"path": str(spring.absolute()), "file": "spring"})
 
     return metadata
