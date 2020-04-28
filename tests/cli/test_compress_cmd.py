@@ -194,6 +194,36 @@ def test_compress_fastq_valid_spring_file(
     assert result.exit_code == 0
 
 
+def test_compress_fastq_with_metadata(
+    first_read, second_read, spring_tmp_path, base_context, metadata_tmp_path
+):
+    """Test to run the compress fastq command with metadata written"""
+    # GIVEN the path a pair of fastqs, a spring file and a cli runner
+    runner = CliRunner()
+    # GIVEN a non existing spring path
+    assert not spring_tmp_path.exists()
+    # GIVEN a non existing metadata path
+    assert not metadata_tmp_path.exists()
+    # WHEN running the compress command with metadata
+    result = runner.invoke(
+        fastq,
+        [
+            "--first-read",
+            str(first_read),
+            "--second-read",
+            str(second_read),
+            "--spring-path",
+            str(spring_tmp_path),
+            "--metadata-file",
+        ],
+        obj=base_context,
+    )
+    # THEN assert the command succedes
+    assert result.exit_code == 0
+    # THEN assert the metadata file was created
+    assert metadata_tmp_path.exists()
+
+
 def test_compress_fastq_real(
     first_read, second_read, spring_tmp_path, real_base_context
 ):
