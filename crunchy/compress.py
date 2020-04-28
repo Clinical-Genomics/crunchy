@@ -9,21 +9,21 @@ LOG = logging.getLogger(__name__)
 
 
 def compress_spring(
-    first: pathlib.Path,
-    second: pathlib.Path,
+    first_read: pathlib.Path,
+    second_read: pathlib.Path,
     spring_api: SpringProcess,
     outfile: pathlib.Path,
     dry_run: bool = False,
 ) -> bool:
     """Compress file(s)"""
-    first = first.absolute()
-    second = second.absolute()
+    first_read = first_read.absolute()
+    second_read = second_read.absolute()
     outfile = outfile.absolute()
-    LOG.info("Compressing %s and %s to %s", first, second, outfile)
+    LOG.info("Compressing %s and %s to %s", first_read, second_read, outfile)
     if dry_run:
         return True
 
-    return spring_api.compress(first=first, second=second, outfile=outfile)
+    return spring_api.compress(first=first_read, second=second_read, outfile=outfile)
 
 
 def compress_cram(

@@ -12,7 +12,10 @@ def test_compress_spring(first_read, second_read, spring_api):
     spring_api.compress_success = True
     # WHEN running the compression
     res = compress_spring(
-        first=first_read, second=second_read, outfile=outpath, spring_api=spring_api
+        first_read=first_read,
+        second_read=second_read,
+        outfile=outpath,
+        spring_api=spring_api,
     )
     # THEN assert that the run was succesfull
     assert res is True
@@ -25,8 +28,8 @@ def test_compress_spring_dry_run(first_read, second_read):
     outpath = pathlib.Path(tempfile.NamedTemporaryFile().name)
     # WHEN running the compression
     res = compress_spring(
-        first=first_read,
-        second=second_read,
+        first_read=first_read,
+        second_read=second_read,
         outfile=outpath,
         spring_api=spring_api,
         dry_run=True,

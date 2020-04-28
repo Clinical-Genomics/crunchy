@@ -1,9 +1,7 @@
 """Code to test the CLI compress commands"""
 import logging
-import os
 import pathlib
 
-import pytest
 from click.testing import CliRunner
 
 from crunchy.cli import compare_cmd
@@ -112,7 +110,13 @@ def test_compress_fastq_dry_run(first_read, second_read):
     # WHEN running the compress command with dry_run
     result = runner.invoke(
         fastq,
-        ["--first", str(first_read), "--second", str(second_read), "--dry-run"],
+        [
+            "--first-read",
+            str(first_read),
+            "--second-read",
+            str(second_read),
+            "--dry-run",
+        ],
         obj={},
     )
     # THEN assert the command was succesful even without a valid api
@@ -129,9 +133,9 @@ def test_compress_fastq_dry_run_integrity(first_read, second_read):
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--dry-run",
             "--check-integrity",
@@ -153,9 +157,9 @@ def test_compress_fastq_existing_spring_file(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--spring-path",
             str(spring_path),
@@ -177,9 +181,9 @@ def test_compress_fastq_valid_spring_file(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--spring-path",
             str(spring_tmp_path),
@@ -188,6 +192,36 @@ def test_compress_fastq_valid_spring_file(
     )
     # THEN assert the command succedes
     assert result.exit_code == 0
+
+
+def test_compress_fastq_with_metadata(
+    first_read, second_read, spring_tmp_path, base_context, metadata_tmp_path
+):
+    """Test to run the compress fastq command with metadata written"""
+    # GIVEN the path a pair of fastqs, a spring file and a cli runner
+    runner = CliRunner()
+    # GIVEN a non existing spring path
+    assert not spring_tmp_path.exists()
+    # GIVEN a non existing metadata path
+    assert not metadata_tmp_path.exists()
+    # WHEN running the compress command with metadata
+    result = runner.invoke(
+        fastq,
+        [
+            "--first-read",
+            str(first_read),
+            "--second-read",
+            str(second_read),
+            "--spring-path",
+            str(spring_tmp_path),
+            "--metadata-file",
+        ],
+        obj=base_context,
+    )
+    # THEN assert the command succedes
+    assert result.exit_code == 0
+    # THEN assert the metadata file was created
+    assert metadata_tmp_path.exists()
 
 
 def test_compress_fastq_real(
@@ -201,9 +235,9 @@ def test_compress_fastq_real(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_read),
-            "--second",
+            "--second-read",
             str(second_read),
             "--spring-path",
             str(spring_tmp_path),
@@ -242,9 +276,9 @@ def test_compress_fastq_real_with_integrity(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_tmp_file),
-            "--second",
+            "--second-read",
             str(second_tmp_file),
             "--spring-path",
             str(spring_tmp_path),
@@ -278,9 +312,9 @@ def test_compress_fastq_real_with_integrity_fail(
     result = runner.invoke(
         fastq,
         [
-            "--first",
+            "--first-read",
             str(first_tmp_file),
-            "--second",
+            "--second-read",
             str(second_tmp_file),
             "--spring-path",
             str(spring_tmp_path),
