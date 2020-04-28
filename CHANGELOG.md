@@ -10,7 +10,7 @@ About changelog [here](https://keepachangelog.com/en/1.0.0/)
 ### Fixed
 ### Changed
 
-## [0.4]
+## [0.5]
 
 ### Added
 - Option to output a metadata file for a spring archive with original fastq paths and checksums
