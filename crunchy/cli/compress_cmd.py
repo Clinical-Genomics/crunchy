@@ -1,5 +1,4 @@
 """CLI functions to compress"""
-import json
 import logging
 import pathlib
 
@@ -10,7 +9,7 @@ from crunchy.cli.decompress_cmd import spring as decompress_spring_cmd
 from crunchy.cli.utils import file_exists
 from crunchy.compress import compress_cram, compress_spring
 from crunchy.files import cram_outpath, spring_outpath
-from crunchy.integrity import get_checksum
+from crunchy.metadata import dump_spring_metadata, fetch_spring_metadata
 
 LOG = logging.getLogger(__name__)
 
@@ -75,30 +74,12 @@ def fastq(
         dry_run=dry_run,
     )
 
-    metadata = []
-    first_checksum = get_checksum(infile=first_read)
-    metadata.append(
-        {
-            "path": str(first_read.absolute()),
-            "file": "first_read",
-            "checksum": first_checksum,
-        }
+    metadata = fetch_spring_metadata(
+        first_read=first_read, second_read=second_read, spring=spring_path
     )
-    second_checksum = get_checksum(infile=second_read)
-    metadata.append(
-        {
-            "path": str(second_read.absolute()),
-            "file": "second_read",
-            "checksum": second_checksum,
-        }
-    )
-    metadata.append({"path": str(spring_path.absolute()), "file": "spring"})
 
     if metadata_file:
-        metadata_path = spring_path.with_suffix(".json")
-        with open(metadata_path, "w") as out:
-            LOG.info("Dumping spring metadata to %s", metadata_path)
-            json.dump(metadata, out, indent=2)
+        dump_spring_metadata(metadata)
 
     if not check_integrity:
         return
@@ -113,6 +94,14 @@ def fastq(
         second_read=str(second_spring),
         dry_run=dry_run,
     )
+
+    first_checksum = None
+    second_checksum = None
+    for file_info in metadata:
+        if file_info["file"] == "first_read":
+            first_checksum = file_info["checksum"]
+        elif file_info["file"] == "second_read":
+            second_checksum = file_info["checksum"]
 
     success = True
     try:
@@ -132,7 +121,6 @@ def fastq(
     if not dry_run:
         first_spring.unlink()
         LOG.info("%s deleted", first_spring)
-    if not dry_run:
         second_spring.unlink()
         LOG.info("%s deleted", second_spring)
 

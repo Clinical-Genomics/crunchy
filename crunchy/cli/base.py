@@ -8,6 +8,7 @@ from crunchy.command import CramProcess, SpringProcess
 from crunchy.version import __version__
 
 from .auto_cmd import auto
+from .checksum_cmd import checksum
 from .compare_cmd import compare
 from .compress_cmd import compress
 from .decompress_cmd import decompress
@@ -83,3 +84,4 @@ base_command.add_command(compare)
 base_command.add_command(decompress)
 base_command.add_command(compress)
 base_command.add_command(auto)
+base_command.add_command(checksum)
