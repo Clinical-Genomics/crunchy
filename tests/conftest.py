@@ -7,6 +7,7 @@ import sys
 import pytest
 
 from crunchy.command import CramProcess, SpringProcess
+from crunchy.integrity import get_checksum
 
 LOG = logging.getLogger(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
@@ -170,6 +171,47 @@ def cram_tmp_file(cram_path, cram_tmp_path):
     """Return the path to a temporary cram file"""
     shutil.copy(str(cram_path), str(cram_tmp_path))
     return cram_tmp_path
+
+
+# Fixtures for checksums #
+
+
+@pytest.fixture(name="checksum_first_read")
+def fixture_checksum_first_read(first_read):
+    """Return the checksum for first fastq read"""
+    return get_checksum(first_read)
+
+
+@pytest.fixture(name="checksum_second_read")
+def fixture_checksum_second_read(second_read):
+    """Return the checksum for second fastq read"""
+    return get_checksum(second_read)
+
+
+# Fixtures for metadata
+
+
+@pytest.fixture(name="metadata")
+def fixture_metadata(
+    first_read, second_read, spring_path, checksum_first_read, checksum_second_read
+):
+    """Return metada information"""
+    metadata = [
+        {
+            "path": str(first_read.absolute()),
+            "file": "first_read",
+            "checksum": checksum_first_read,
+            "algorithm": "sha256",
+        },
+        {
+            "path": str(second_read.absolute()),
+            "file": "second_read",
+            "checksum": checksum_second_read,
+            "algorithm": "sha256",
+        },
+        {"path": str(spring_path.absolute()), "file": "spring"},
+    ]
+    return metadata
 
 
 # Fixtures for apis #

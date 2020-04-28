@@ -46,3 +46,14 @@ def test_compare_checksums(dummy_file_path):
     res_2 = get_checksum(dummy_file_path)
     # THEN assert the checksums are correct
     assert res == res_2
+
+
+def test_generate_checksum_read_1(first_read, checksum_first_read):
+    """Test to generate checksum for a fastq file"""
+    # GIVEN a fastq file and the corresponding sha256 checksum
+
+    # WHEN generating a checksum for that fastq file
+    res = get_checksum(first_read)
+
+    # THEN assert that the checksums are the same
+    assert res == checksum_first_read
