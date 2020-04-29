@@ -15,8 +15,13 @@ pip install crunchy
 ```
 
 ### Docker
+This will install crunchy as well as samtools and spring within the container.
 ```
-docker pull clinicalgenomics/crunchy
+docker pull clinicalgenomics/crunchy:0.5
+```
+Run crunchy using:
+```
+docker run clinicalgenomics/crunchy:0.5 crunchy
 ```
 
 ### Developers
