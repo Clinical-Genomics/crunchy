@@ -9,6 +9,17 @@ A python wrapper around [spring][spring] and cram (samtools) to compress fastq t
 
 ## Install
 
+### Pip
+```
+pip install crunchy
+```
+
+### Docker
+```
+docker pull clinicalgenomics/crunchy
+```
+
+### Developers
 ```
 git clone https://github.com/Clinical-Genomics/crunchy
 pip install -e .
