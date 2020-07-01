@@ -106,10 +106,10 @@ def fastq(
     success = True
     try:
         ctx.invoke(
-            compare, first=str(first_read), checksum=checksums[0], dry_run=dry_run
+            compare, first=str(first_spring), checksum=checksums[0], dry_run=dry_run
         )
         ctx.invoke(
-            compare, first=str(second_read), checksum=checksums[1], dry_run=dry_run
+            compare, first=str(second_spring), checksum=checksums[1], dry_run=dry_run
         )
     except click.Abort:
         LOG.error("Uncompressed spring differ from original fastqs")
