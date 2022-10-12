@@ -7,7 +7,7 @@ FROM clinicalgenomics/mip:2.0"
 LABEL base_image="clinicalgenomics/mip:2.0""
 LABEL version="1"
 LABEL software="crunchy"
-LABEL software.version="0.5"
+LABEL software.version="0.6"
 LABEL extra.binaries="crunchy"
 
 ################## MAINTAINER ######################
