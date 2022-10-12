@@ -6,6 +6,8 @@ verify_ssl = true
 [packages]
 click = "*"
 coloredlogs = "*"
+crunchy = {editable = true, path = "."}
+importlib-metadata = "*"
 
 [dev-packages]
 pytest = "*"
