@@ -1,4 +1,4 @@
-"""Code to handle integrity of files"""
+"""Code to handle integrity of files."""
 
 import gzip
 import hashlib
@@ -8,16 +8,14 @@ import pathlib
 LOG = logging.getLogger(__name__)
 
 
-def compare_elements(elements: list):
-    """Check if all elements are the same"""
-    if len(set(elements)) == 1:
-        return True
-    return False
+def compare_elements(elements: list) -> bool:
+    """Check if all elements are the same."""
+    return len(set(elements)) == 1
 
 
 def get_checksum(infile: pathlib.Path, algorithm: str = "sha256") -> str:
-    """Get the checksum for a file"""
-    LOG.info("Create checksum for %s", infile)
+    """Get the checksum for a file."""
+    LOG.info(f"Create checksum for {infile}")
     if algorithm == "sha1":
         LOG.info("Use sha1")
         hash_obj = hashlib.sha1()
@@ -28,7 +26,7 @@ def get_checksum(infile: pathlib.Path, algorithm: str = "sha256") -> str:
         LOG.info("Use sha256")
         hash_obj = hashlib.sha256()
 
-    content = open(infile, "rb")
+    content: Any = open(infile, "rb")
     if infile.suffix in [".gz", ".gzip"]:
         LOG.info("Unzip before counting checksum")
         content = gzip.open(infile, "rb")
@@ -36,8 +34,8 @@ def get_checksum(infile: pathlib.Path, algorithm: str = "sha256") -> str:
     return generate_checksum(content, hash_obj)
 
 
-def generate_checksum(content: str, hash_obj: "hashlib._HASH") -> str:
-    """Return the checksum of a file
+def generate_checksum(content: Any, hash_obj: "hashlib._HASH") -> str:
+    """Return the checksum of a file,
 
     Args:
         content(iterable)

@@ -1,6 +1,6 @@
-"""Base conftest file"""
+"""Base conftest file."""
 import logging
-import pathlib
+from pathlib import Path
 import shutil
 import sys
 
@@ -14,69 +14,60 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 
 @pytest.fixture(name="fixtures_dir")
-def fixture_fixtures_dir():
+def fixture_fixtures_dir() -> Path:
     """Return the path to a the fixtures dir"""
-    _dir_path = pathlib.Path("tests/fixtures")
-    return _dir_path
+    return Path("tests/fixtures")
 
 
 # File paths fixtures #
 
 
 @pytest.fixture(name="reference_path")
-def fixture_reference_path(fixtures_dir):
+def fixture_reference_path(fixtures_dir: Path) -> str:
     """Return the path to fasta reference"""
-    _file_path = fixtures_dir / "reference.fasta"
-    return _file_path
+    return Path(fixtures_dir, "reference.fasta").as_posix()
 
 
 @pytest.fixture
-def dummy_file_path(fixtures_dir):
+def dummy_file_path(fixtures_dir: Path) -> str:
     """Return the path to a dummy file"""
-    _file_path = fixtures_dir / "dummy.txt"
-    return _file_path
+    return Path(fixtures_dir, "dummy.txt").as_posix()
 
 
 @pytest.fixture
-def zipped_file_path(fixtures_dir):
+def zipped_file_path(fixtures_dir: Path) -> str:
     """Return the path to a zipped dummy file"""
-    _file_path = fixtures_dir / "zipped_file.txt.gz"
-    return _file_path
+    return Path(fixtures_dir, "zipped_file.txt.gz").as_posix()
 
 
 @pytest.fixture(name="bam_path")
-def fixture_bam_path(fixtures_dir):
+def fixture_bam_path(fixtures_dir: Path) -> str:
     """Return the path to a bam file"""
-    _file_path = fixtures_dir / "bam" / "test.bam"
-    return _file_path
+    return Path(fixtures_dir, "bam", "test.bam").as_posix()
 
 
 @pytest.fixture(name="cram_path")
-def fixture_cram_path(fixtures_dir):
+def fixture_cram_path(fixtures_dir: Path) -> str:
     """Return the path to a cram file"""
-    _file_path = fixtures_dir / "bam" / "test.cram"
-    return _file_path
+    return Path(fixtures_dir, "bam", "test.cram").as_posix()
 
 
 @pytest.fixture(name="first_read")
-def fixture_first_read(fixtures_dir):
-    """Return the path first read in read pair"""
-    _file_path = fixtures_dir / "fastq" / "TEST_R1_001.fq.gz"
-    return _file_path
+def fixture_first_read(fixtures_dir: Path) -> str:
+    """Return the path first read in read pair."""
+    return Path(fixtures_dir, "fastq", "TEST_R1_001.fq.gz").as_posix()
 
 
 @pytest.fixture(name="second_read")
-def fixture_second_read(fixtures_dir):
+def fixture_second_read(fixtures_dir: Path) -> str:
     """Return the path second read in read pair"""
-    _file_path = fixtures_dir / "fastq" / "TEST_R2_001.fq.gz"
-    return _file_path
+    return Path(fixtures_dir, "fastq", "TEST_R2_001.fq.gz").as_posix()
 
 
 @pytest.fixture(name="spring_path")
-def fixture_spring_path(fixtures_dir):
-    """Return the path to a spring compressed file"""
-    _file_path = fixtures_dir / "spring" / "TEST.spring"
-    return _file_path
+def fixture_spring_path(fixtures_dir: Path) -> str:
+    """Return the path to a spring compressed file."""
+    return Path(fixtures_dir, "spring", "TEST.spring").as_posix()
 
 
 # Temp files fixtures #
@@ -85,7 +76,7 @@ def fixture_spring_path(fixtures_dir):
 @pytest.fixture(scope="function", name="project_dir")
 def fixture_project_dir(tmpdir_factory):
     """Path to a temporary directory"""
-    my_tmpdir = pathlib.Path(tmpdir_factory.mktemp("data"))
+    my_tmpdir = Path(tmpdir_factory.mktemp("data"))
     yield my_tmpdir
     shutil.rmtree(str(my_tmpdir))
 
@@ -268,7 +259,7 @@ class MockSpringProcess:
         return 0
 
     def decompress(
-        self, spring_path: pathlib.Path, first: pathlib.Path, second: pathlib.Path
+        self, spring_path: Path, first: Path, second: Path
     ) -> bool:
         """Run the spring decompress command"""
         parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
@@ -280,7 +271,7 @@ class MockSpringProcess:
         return True
 
     def compress(
-        self, first: pathlib.Path, second: pathlib.Path, outfile: pathlib.Path
+        self, first: Path, second: Path, outfile: Path
     ) -> bool:
         """Run the spring compression command"""
         parameters = [
@@ -317,7 +308,7 @@ class MockCramProcess:
         LOG.info("Running command %s", " ".join(parameters))
         return 0
 
-    def decompress(self, cram_path: pathlib.Path, bam_path: pathlib.Path) -> bool:
+    def decompress(self, cram_path: Path, bam_path: Path) -> bool:
         """Convert cram to bam"""
         LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
         parameters = [
@@ -332,7 +323,7 @@ class MockCramProcess:
         self.run_command(parameters)
         return True
 
-    def compress(self, bam_path: pathlib.Path, cram_path: pathlib.Path) -> bool:
+    def compress(self, bam_path: Path, cram_path: Path) -> bool:
         """Convert bam to cram"""
         LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
         parameters = [
@@ -348,7 +339,7 @@ class MockCramProcess:
         self.index(cram_path)
         return True
 
-    def index(self, file_path: pathlib.Path):
+    def index(self, file_path: Path):
         """Index a bam or cram file"""
         LOG.info("Creating index for %s", file_path)
         index_type = ".cram"

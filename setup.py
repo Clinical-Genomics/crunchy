@@ -11,7 +11,7 @@ from setuptools import Command, find_packages, setup
 NAME = "crunchy"
 DESCRIPTION = "Compress fastq with spring"
 URL = "https://github.com/Clinical-Genomics/crunchy"
-EMAIL = "mans.magnusson@scilifelab.com"
+EMAIL = "henrik.stranneheim@scilifelab.com"
 AUTHOR = "Mans Magnusson"
 REQUIRES_PYTHON = ">=3.6.0"
 VERSION = None
@@ -82,10 +82,12 @@ class UploadCommand(Command):
         print("\033[1m{0}\033[0m".format(s))
 
     def initialize_options(self):
-        pass
+        """Set or (reset) all options/attributes/caches used by the command to their default values."""
+        pass  # currentlu, nothing needs resetting
 
     def finalize_options(self):
-        pass
+        """Set final values for all options/attributes used by the command."""
+        pass  # currently, nothing no final values needs to be set
 
     def run(self):
         try:
