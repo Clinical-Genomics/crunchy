@@ -5,6 +5,8 @@ import hashlib
 import logging
 import pathlib
 
+from typing import Any
+
 LOG = logging.getLogger(__name__)
 
 
@@ -35,7 +37,7 @@ def get_checksum(infile: pathlib.Path, algorithm: str = "sha256") -> str:
 
 
 def generate_checksum(content: Any, hash_obj: "hashlib._HASH") -> str:
-    """Return the checksum of a file,
+    """Return the checksum of a file.
 
     Args:
         content(iterable)
