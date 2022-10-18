@@ -15,7 +15,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 @pytest.fixture(name="fixtures_dir")
 def fixture_fixtures_dir() -> Path:
-    """Return the path to a the fixtures dir"""
+    """Return the path to a the fixtures dir."""
     return Path("tests/fixtures")
 
 
@@ -23,51 +23,51 @@ def fixture_fixtures_dir() -> Path:
 
 
 @pytest.fixture(name="reference_path")
-def fixture_reference_path(fixtures_dir: Path) -> str:
-    """Return the path to fasta reference"""
-    return Path(fixtures_dir, "reference.fasta").as_posix()
+def fixture_reference_path(fixtures_dir: Path) -> Path:
+    """Return the path to fasta reference."""
+    return Path(fixtures_dir, "reference.fasta")
 
 
 @pytest.fixture
-def dummy_file_path(fixtures_dir: Path) -> str:
-    """Return the path to a dummy file"""
-    return Path(fixtures_dir, "dummy.txt").as_posix()
+def dummy_file_path(fixtures_dir: Path) -> Path:
+    """Return the path to a dummy file."""
+    return Path(fixtures_dir, "dummy.txt")
 
 
 @pytest.fixture
-def zipped_file_path(fixtures_dir: Path) -> str:
-    """Return the path to a zipped dummy file"""
-    return Path(fixtures_dir, "zipped_file.txt.gz").as_posix()
+def zipped_file_path(fixtures_dir: Path) -> Path:
+    """Return the path to a zipped dummy file."""
+    return Path(fixtures_dir, "zipped_file.txt.gz")
 
 
 @pytest.fixture(name="bam_path")
-def fixture_bam_path(fixtures_dir: Path) -> str:
-    """Return the path to a bam file"""
-    return Path(fixtures_dir, "bam", "test.bam").as_posix()
+def fixture_bam_path(fixtures_dir: Path) -> Path:
+    """Return the path to a bam file."""
+    return Path(fixtures_dir, "bam", "test.bam")
 
 
 @pytest.fixture(name="cram_path")
-def fixture_cram_path(fixtures_dir: Path) -> str:
+def fixture_cram_path(fixtures_dir: Path) -> Path:
     """Return the path to a cram file"""
-    return Path(fixtures_dir, "bam", "test.cram").as_posix()
+    return Path(fixtures_dir, "bam", "test.cram")
 
 
 @pytest.fixture(name="first_read")
-def fixture_first_read(fixtures_dir: Path) -> str:
+def fixture_first_read(fixtures_dir: Path) -> Path:
     """Return the path first read in read pair."""
-    return Path(fixtures_dir, "fastq", "TEST_R1_001.fq.gz").as_posix()
+    return Path(fixtures_dir, "fastq", "TEST_R1_001.fq.gz")
 
 
 @pytest.fixture(name="second_read")
-def fixture_second_read(fixtures_dir: Path) -> str:
+def fixture_second_read(fixtures_dir: Path) -> Path:
     """Return the path second read in read pair"""
-    return Path(fixtures_dir, "fastq", "TEST_R2_001.fq.gz").as_posix()
+    return Path(fixtures_dir, "fastq", "TEST_R2_001.fq.gz")
 
 
 @pytest.fixture(name="spring_path")
-def fixture_spring_path(fixtures_dir: Path) -> str:
+def fixture_spring_path(fixtures_dir: Path) -> Path:
     """Return the path to a spring compressed file."""
-    return Path(fixtures_dir, "spring", "TEST.spring").as_posix()
+    return Path(fixtures_dir, "spring", "TEST.spring")
 
 
 # Temp files fixtures #
