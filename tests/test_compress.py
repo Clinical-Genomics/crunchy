@@ -2,7 +2,9 @@
 import pathlib
 import tempfile
 
+from crunchy.command import CramProcess, SpringProcess
 from crunchy.compress import compress_cram, compress_spring
+
 
 
 def test_compress_spring(first_read, second_read, spring_api: SpringProcess):
