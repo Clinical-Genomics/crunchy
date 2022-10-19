@@ -6,8 +6,8 @@ verify_ssl = true
 [packages]
 click = "*"
 coloredlogs = "*"
-crunchy = {editable = true, path = "."}
 importlib-metadata = "*"
+crunchy = {editable = true, path = "."}
 
 [dev-packages]
 pytest = "*"
@@ -19,4 +19,4 @@ black = "==19.10b0"
 crunchy = {editable = true,path = "."}
 
 [requires]
-python_version = "3.7"
+python_version = "3.10.6"

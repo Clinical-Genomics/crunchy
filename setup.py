@@ -13,7 +13,7 @@ DESCRIPTION = "Compress fastq with spring"
 URL = "https://github.com/Clinical-Genomics/crunchy"
 EMAIL = "henrik.stranneheim@scilifelab.com"
 AUTHOR = "Mans Magnusson"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.7.0"
 VERSION = None
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -133,7 +133,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Unix",
         "Intended Audience :: Science/Research",
