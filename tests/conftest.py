@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 import shutil
 import sys
-from typing import Generator, List
+from typing import Generator
 
 import pytest
 
@@ -337,7 +337,7 @@ class MockCramProcess:
         LOG.info("Creating index for %s", file_path)
         index_type: str = ".bai" if file_path.suffix == ".bam" else ".cram"
         index_path: Path = file_path.with_suffix(file_path.suffix + index_type)
-        parameters: List[str] = ["index", file_path.as_posix(), index_path.as_posix()]
+        parameters: list[str] = ["index", file_path.as_posix(), index_path.as_posix()]
         self.run_command(parameters)
         return True
 
