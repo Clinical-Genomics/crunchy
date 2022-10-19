@@ -120,47 +120,46 @@ def fixture_cram_tmp_index_path(cram_tmp_path: Path, real_cram_api: CramProcess)
 
 
 @pytest.fixture(name="metadata_tmp_path")
-def fixture_metadata_tmp_path(spring_tmp_path):
-    """Return the path to a nonexisting temporary spring metadata file"""
-    _file_path = spring_tmp_path.with_suffix(".json")
-    return _file_path
+def fixture_metadata_tmp_path(spring_tmp_path: Path) -> Path:
+    """Return the path to a nonexisting temporary spring metadata file."""
+    return spring_tmp_path.with_suffix(".json")
 
 
 # Paths to existing temporary files #
 
 
 @pytest.fixture(name="first_tmp_file")
-def fixture_first_tmp_file(first_tmp_path, first_read):
-    """Return the path to a temporary fastq file"""
-    shutil.copy(str(first_read), str(first_tmp_path))
+def fixture_first_tmp_file(first_tmp_path: Path, first_read: Path) -> Path:
+    """Return the path to a temporary FASTQ file."""
+    shutil.copy(first_read.as_posix(), first_tmp_path.as_posix())
     return first_tmp_path
 
 
 @pytest.fixture(name="second_tmp_file")
-def fixture_second_tmp_file(second_tmp_path, second_read):
-    """Return the path to a temporary fastq file"""
-    shutil.copy(str(second_read), str(second_tmp_path))
+def fixture_second_tmp_file(second_tmp_path: Path, second_read: Path) -> Path:
+    """Return the path to a temporary FASTQ file."""
+    shutil.copy(second_read.as_posix(), second_tmp_path.as_posix())
     return second_tmp_path
 
 
 @pytest.fixture(name="spring_tmp_file")
-def fixture_spring_tmp_file(spring_tmp_path, spring_path):
-    """Return the path to a temporary spring file"""
-    shutil.copy(str(spring_path), str(spring_tmp_path))
+def fixture_spring_tmp_file(spring_tmp_path: Path, spring_path: Path) -> Path:
+    """Return the path to a temporary Spring file."""
+    shutil.copy(spring_path.as_posix(), spring_tmp_path.as_posix())
     return spring_tmp_path
 
 
 @pytest.fixture
-def bam_tmp_file(bam_path, bam_tmp_path):
+def bam_tmp_file(bam_path: Path, bam_tmp_path: Path) -> Path:
     """Return the path to a temporary small bam file"""
-    shutil.copy(str(bam_path), str(bam_tmp_path))
+    shutil.copy(bam_path.as_posix(), bam_tmp_path.as_posix())
     return bam_tmp_path
 
 
 @pytest.fixture
-def cram_tmp_file(cram_path, cram_tmp_path):
-    """Return the path to a temporary cram file"""
-    shutil.copy(str(cram_path), str(cram_tmp_path))
+def cram_tmp_file(cram_path: Path, cram_tmp_path: Path) -> Path:
+    """Return the path to a temporary CRAM file."""
+    shutil.copy(cram_path.as_posix(), cram_tmp_path.as_posix())
     return cram_tmp_path
 
 
@@ -168,14 +167,14 @@ def cram_tmp_file(cram_path, cram_tmp_path):
 
 
 @pytest.fixture(name="checksum_first_read")
-def fixture_checksum_first_read(first_read):
-    """Return the checksum for first fastq read"""
+def fixture_checksum_first_read(first_read: Path) -> str:
+    """Return the checksum for first FASTQ read."""
     return get_checksum(first_read)
 
 
 @pytest.fixture(name="checksum_second_read")
-def fixture_checksum_second_read(second_read):
-    """Return the checksum for second fastq read"""
+def fixture_checksum_second_read(second_read: Path) -> str:
+    """Return the checksum for second FASTQ read."""
     return get_checksum(second_read)
 
 
@@ -184,52 +183,11 @@ def fixture_checksum_second_read(second_read):
 
 @pytest.fixture(name="spring_metadata")
 def fixture_spring_metadata(
-    first_read, second_read, spring_tmp_path, checksum_first_read, checksum_second_read
+    first_read: Path, second_read: Path, spring_tmp_path: Path, checksum_first_read: str, checksum_second_read: str
 ):
-    """Return metada information"""
-    metadata = [
-        {
-            "path": str(first_read.absolute()),
-            "file": "first_read",
-            "checksum": checksum_first_read,
-            "algorithm": "sha256",
-        },
-        {
-            "path": str(second_read.absolute()),
-            "file": "second_read",
-            "checksum": checksum_second_read,
-            "algorithm": "sha256",
-        },
-        {"path": str(spring_tmp_path.absolute()), "file": "spring"},
-    ]
-    return metadata
+    """Return metadata information."""
+    return [{"path": str(first_read.absolute()), "file": "first_read", "checksum": checksum_first_read, "algorithm": "sha256",}, {"path": str(second_read.absolute()), "file": "second_read", "checksum": checksum_second_read, "algorithm": "sha256",}, {"path": str(spring_tmp_path.absolute()), "file": "spring"},]
 
-
-# Fixtures for apis #
-
-
-@pytest.fixture(name="spring_api")
-def fixture_spring_api():
-    """Return a mocked spring api"""
-    return MockSpringProcess("spring", threads=8)
-
-
-@pytest.fixture(name="cram_api")
-def fixture_cram_api():
-    """Return a mocked spring api"""
-    return MockCramProcess("samtools", threads=8)
-
-
-@pytest.fixture(name="real_spring_api")
-def fixture_real_spring_api():
-    """Return a spring api that runs spring"""
-    return SpringProcess("spring", threads=8)
-
-
-@pytest.fixture(name="real_cram_api")
-def fixture_real_cram_api(reference_path: Path) -> CramProcess:
-    """Return a CRAM api."""
-    return CramProcess("samtools", refgenome_path=str(reference_path))
 
 
 class MockSpringProcess:
@@ -345,3 +303,30 @@ class MockCramProcess:
     def self_check():
         """Mocks the self test."""
         return True
+
+
+# Fixtures for apis #
+
+
+@pytest.fixture(name="spring_api")
+def fixture_spring_api() -> MockSpringProcess:
+    """Return a mocked Spring API."""
+    return MockSpringProcess("spring", threads=8)
+
+
+@pytest.fixture(name="cram_api")
+def fixture_cram_api() -> MockCramProcess:
+    """Return a mocked Spring API."""
+    return MockCramProcess("samtools", threads=8)
+
+
+@pytest.fixture(name="real_spring_api")
+def fixture_real_spring_api() -> SpringProcess:
+    """Return a Spring API that runs Spring"""
+    return SpringProcess("spring", threads=8)
+
+
+@pytest.fixture(name="real_cram_api")
+def fixture_real_cram_api(reference_path: Path) -> CramProcess:
+    """Return a CRAM API."""
+    return CramProcess("samtools", refgenome_path=str(reference_path))

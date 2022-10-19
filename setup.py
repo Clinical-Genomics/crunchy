@@ -1,5 +1,7 @@
 """Based on https://github.com/kennethreitz/setup.py"""
 
+
+import contextlib
 import io
 import os
 import sys
@@ -90,12 +92,9 @@ class UploadCommand(Command):
         pass  # currently, nothing no final values needs to be set
 
     def run(self):
-        try:
+        with contextlib.suppress(OSError):
             self.status("Removing previous builds…")
             rmtree(os.path.join(HERE, "dist"))
-        except OSError:
-            pass
-
         self.status("Building Source and Wheel (universal) distribution…")
         os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
 

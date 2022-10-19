@@ -3,7 +3,7 @@
 import gzip
 import hashlib
 import logging
-import pathlib
+from pathlib import Path
 
 from typing import Any
 
@@ -15,7 +15,7 @@ def compare_elements(elements: list) -> bool:
     return len(set(elements)) == 1
 
 
-def get_checksum(infile: pathlib.Path, algorithm: str = "sha256") -> str:
+def get_checksum(infile: Path, algorithm: str = "sha256") -> str:
     """Get the checksum for a file."""
     LOG.info(f"Create checksum for {infile}")
     if algorithm == "sha1":
