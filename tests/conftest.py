@@ -74,9 +74,9 @@ def fixture_spring_path(fixtures_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="function", name="project_dir")
-def fixture_project_dir(tmpdir_factory):
-    """Path to a temporary directory"""
-    my_tmpdir = Path(tmpdir_factory.mktemp("data"))
+def fixture_project_dir(tmpdir_factory) -> Genarator:
+    """Path to a temporary directory."""
+    my_tmpdir: Path = Path(tmpdir_factory.mktemp("data"))
     yield my_tmpdir
     shutil.rmtree(str(my_tmpdir))
 
@@ -87,8 +87,7 @@ def fixture_project_dir(tmpdir_factory):
 @pytest.fixture(name="first_tmp_path")
 def fixture_first_tmp_path(first_read, project_dir):
     """Return the path to a nonexisting fastq file"""
-    _file_path = project_dir / first_read.name
-    return _file_path
+    return Path(project_dir, first_read.name)
 
 
 @pytest.fixture(name="second_tmp_path")
