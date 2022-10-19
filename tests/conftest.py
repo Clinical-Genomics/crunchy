@@ -226,7 +226,7 @@ def fixture_real_spring_api():
     return SpringProcess("spring", threads=8)
 
 
-@pytest.fixture(name="freal_cram_api")
+@pytest.fixture(name="real_cram_api")
 def fixture_real_cram_api(reference_path: Path) -> CramProcess:
     """Return a CRAM api."""
     return CramProcess("samtools", refgenome_path=str(reference_path))
