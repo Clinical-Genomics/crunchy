@@ -3,7 +3,7 @@ import logging
 from pathlib import Path
 import shutil
 import sys
-from typing import Generator
+from typing import Generator, List
 
 import pytest
 
@@ -233,10 +233,10 @@ def fixture_real_cram_api(reference_path: Path) -> CramProcess:
 
 
 class MockSpringProcess:
-    """Mock the Spring API"""
+    """Mock the Spring API."""
 
     def __init__(self, binary="spring", threads=8, tmp_dir=None):
-        """docstring for __init__"""
+        """Initialize a MockSpringProcess."""
         self.binary = binary
         self.threads = threads
         self.base_call = [self.binary]
@@ -247,33 +247,33 @@ class MockSpringProcess:
 
     @staticmethod
     def run_command(parameters=None):
-        """Mock out the run command functionality"""
+        """Mock out the run command functionality."""
         LOG.info("Running command %s", " ".join(parameters))
         return 0
 
     def decompress(
         self, spring_path: Path, first: Path, second: Path
     ) -> bool:
-        """Run the spring decompress command"""
-        parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
+        """Run the spring decompress command."""
+        parameters = ["-d", "-i", spring_path.as_posix(), "-o", first.as_posix(), second.as_posix()]
         self.run_command(parameters)
         if self._create_output:
-            LOG.info("Create output fastq files %s and %s", self._fastq1, self._fastq2)
-            shutil.copy(str(self._fastq1), str(first))
-            shutil.copy(str(self._fastq2), str(second))
+            LOG.info(f"Create output fastq files {self._fastq1} and {self._fastq2}")
+            shutil.copy(str(self._fastq1), first.as_posix())
+            shutil.copy(str(self._fastq2), second.as_posix())
         return True
 
     def compress(
         self, first: Path, second: Path, outfile: Path
     ) -> bool:
-        """Run the spring compression command"""
+        """Run the spring compression command."""
         parameters = [
             "-c",
             "-i",
-            str(first),
-            str(second),
+            first.as_posix(),
+            second.as_posix(),
             "-o",
-            str(outfile),
+            outfile.as_posix(),
             "-t",
             str(self.threads),
         ]
@@ -282,18 +282,18 @@ class MockSpringProcess:
 
 
 class MockCramProcess:
-    """Mock the Spring API"""
+    """Mock the Spring API."""
 
     def __init__(self, binary="samtools", refgenome_path="genome.fasta", threads=8):
-        """Initialize a CramProcessMock"""
+        """Initialize a CramProcessMock."""
         self.binary = binary
         self.refgenome_path = refgenome_path
         self.threads = threads
         self.base_call = [self.binary]
 
     @staticmethod
-    def run_command(parameters=None):
-        """Execute a command in the shell
+    def run_command(parameters=None) -> int:
+        """Execute a command in the shell.
 
         Args:
             parameters(list)
@@ -302,48 +302,46 @@ class MockCramProcess:
         return 0
 
     def decompress(self, cram_path: Path, bam_path: Path) -> bool:
-        """Convert cram to bam"""
+        """Convert CRAM to BAM."""
         LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
         parameters = [
             "view",
             "-b",
             "-o",
-            str(bam_path),
+            bam_path.as_posix(),
             "-r",
             self.refgenome_path,
-            str(cram_path),
+            cram_path.as_posix(),
         ]
         self.run_command(parameters)
         return True
 
     def compress(self, bam_path: Path, cram_path: Path) -> bool:
-        """Convert bam to cram"""
-        LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
+        """Convert BAM to CRAM."""
+        LOG.info(f"Compressing bam {bam_path} to cram {cram_path}")
         parameters = [
             "view",
             "-C",
             "-T",
             self.refgenome_path,
-            str(bam_path),
+            bam_path.as_posix(),
             "-o",
-            str(cram_path),
+            cram_path.as_posix(),
         ]
         self.run_command(parameters)
         self.index(cram_path)
         return True
 
-    def index(self, file_path: Path):
-        """Index a bam or cram file"""
+    def index(self, file_path: Path) -> bool:
+        """Index a BAN or CRAM file."""
         LOG.info("Creating index for %s", file_path)
-        index_type = ".cram"
-        if file_path.suffix == ".bam":
-            index_type = ".bai"
-        index_path = file_path.with_suffix(file_path.suffix + index_type)
-        parameters = ["index", str(file_path), str(index_path)]
+        index_type: str = ".bai" if file_path.suffix == ".bam" else ".cram"
+        index_path: Path = file_path.with_suffix(file_path.suffix + index_type)
+        parameters: List[str] = ["index", file_path.as_posix(), index_path.as_posix()]
         self.run_command(parameters)
         return True
 
     @staticmethod
     def self_check():
-        """Mocks the self test"""
+        """Mocks the self test."""
         return True
