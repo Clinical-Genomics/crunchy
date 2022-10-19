@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 import shutil
 import sys
+from typing import Generator
 
 import pytest
 
@@ -15,7 +16,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 @pytest.fixture(name="fixtures_dir")
 def fixture_fixtures_dir() -> Path:
-    """Return the path to a the fixtures dir."""
+    """Return the path to the fixture's dir."""
     return Path("tests/fixtures")
 
 
@@ -24,7 +25,7 @@ def fixture_fixtures_dir() -> Path:
 
 @pytest.fixture(name="reference_path")
 def fixture_reference_path(fixtures_dir: Path) -> Path:
-    """Return the path to fasta reference."""
+    """Return the path to FASTA reference."""
     return Path(fixtures_dir, "reference.fasta")
 
 
@@ -42,13 +43,13 @@ def zipped_file_path(fixtures_dir: Path) -> Path:
 
 @pytest.fixture(name="bam_path")
 def fixture_bam_path(fixtures_dir: Path) -> Path:
-    """Return the path to a bam file."""
+    """Return the path to a BAM file."""
     return Path(fixtures_dir, "bam", "test.bam")
 
 
 @pytest.fixture(name="cram_path")
 def fixture_cram_path(fixtures_dir: Path) -> Path:
-    """Return the path to a cram file"""
+    """Return the path to a CRAN file"""
     return Path(fixtures_dir, "bam", "test.cram")
 
 
@@ -66,7 +67,7 @@ def fixture_second_read(fixtures_dir: Path) -> Path:
 
 @pytest.fixture(name="spring_path")
 def fixture_spring_path(fixtures_dir: Path) -> Path:
-    """Return the path to a spring compressed file."""
+    """Return the path to a Spring compressed file."""
     return Path(fixtures_dir, "spring", "TEST.spring")
 
 
@@ -74,55 +75,48 @@ def fixture_spring_path(fixtures_dir: Path) -> Path:
 
 
 @pytest.fixture(scope="function", name="project_dir")
-def fixture_project_dir(tmpdir_factory) -> Genarator:
+def fixture_project_dir(tmpdir_factory) -> Generator[Path, None, None]:
     """Path to a temporary directory."""
-    my_tmpdir: Path = Path(tmpdir_factory.mktemp("data"))
-    yield my_tmpdir
-    shutil.rmtree(str(my_tmpdir))
+    yield Path(tmpdir_factory.mktemp("data"))
 
 
 # Paths to non existing files #
 
 
 @pytest.fixture(name="first_tmp_path")
-def fixture_first_tmp_path(first_read, project_dir):
-    """Return the path to a nonexisting fastq file"""
+def fixture_first_tmp_path(project_dir: Path, first_read: Path) -> Path:
+    """Return the path to a nonexistent FASTQ file."""
     return Path(project_dir, first_read.name)
 
 
 @pytest.fixture(name="second_tmp_path")
-def fixture_second_tmp_path(second_read, project_dir):
-    """Return the path to a nonexisting fastq file"""
-    _file_path = project_dir / second_read.name
-    return _file_path
+def fixture_second_tmp_path(project_dir: Path, second_read: Path) -> Path:
+    """Return the path to a nonexistent FASTQ file."""
+    return Path(project_dir, second_read.name)
 
 
 @pytest.fixture(name="spring_tmp_path")
-def fixture_spring_tmp_path(spring_path, project_dir):
-    """Return the path to a nonexisting temporary spring file"""
-    _spring_tmp = project_dir / spring_path.name
-    return _spring_tmp
+def fixture_spring_tmp_path(project_dir: Path, spring_path: Path) -> Path:
+    """Return the path to a nonexistent temporary Spring file."""
+    return Path(project_dir, spring_path.name)
 
 
 @pytest.fixture(name="bam_tmp_path")
-def fixture_bam_tmp_path(bam_path, project_dir):
-    """Return the path to a nonexisting small bam file"""
-    _file_path = project_dir / bam_path.name
-    return _file_path
+def fixture_bam_tmp_path(bam_path: Path, project_dir: Path) -> Path:
+    """Return the path to a nonexistent small BAM file."""
+    return Path(project_dir, bam_path.name)
 
 
 @pytest.fixture(name="cram_tmp_path")
-def fixture_cram_tmp_path(cram_path, project_dir):
-    """Return the path to a nonexisting temporary cram file"""
-    _file_path = project_dir / cram_path.name
-    return _file_path
+def fixture_cram_tmp_path(cram_path: Path, project_dir: Path) -> Path:
+    """Return the path to a nonexistent temporary CRAM file."""
+    return Path(project_dir, cram_path.name)
 
 
 @pytest.fixture(name="cram_tmp_index_path")
-def fixture_cram_tmp_index_path(cram_tmp_path, real_cram_api):
-    """Return the path to a nonexisting temporary cram file"""
-    _index_path = real_cram_api.get_index_path(cram_tmp_path)
-    return _index_path
+def fixture_cram_tmp_index_path(cram_tmp_path: Path, real_cram_api: CramProcess) -> Path:
+    """Return the path to a nonexistent temporary CRAM file."""
+    return real_cram_api.get_index_path(cram_tmp_path)
 
 
 @pytest.fixture(name="metadata_tmp_path")
@@ -232,9 +226,9 @@ def fixture_real_spring_api():
     return SpringProcess("spring", threads=8)
 
 
-@pytest.fixture(name="real_cram_api")
-def fixture_real_cram_api(reference_path):
-    """Return a cram api"""
+@pytest.fixture(name="freal_cram_api")
+def fixture_real_cram_api(reference_path: Path) -> CramProcess:
+    """Return a CRAM api."""
     return CramProcess("samtools", refgenome_path=str(reference_path))
 
 
