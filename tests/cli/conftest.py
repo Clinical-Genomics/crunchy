@@ -1,32 +1,33 @@
 """Fixtures for CLI tests"""
-import pathlib
 import tempfile
+from pathlib import Path
+from typing import Any, Generator
 
 import pytest
 
+from crunchy.command import SpringProcess, CramProcess
+from tests.conftest import MockSpringProcess, MockCramProcess
 
-@pytest.fixture(scope="function", name="base_context")
-def fixture_base_context(spring_api, cram_api) -> dict:
-    """context to use in cli"""
 
+@pytest.fixture(name="base_context")
+def fixture_base_context(spring_api: MockSpringProcess, cram_api: MockCramProcess) -> dict[str, Any]:
+    """Return base context to use in CLI."""
     return {
         "spring_api": spring_api,
         "cram_api": cram_api,
     }
 
 
-@pytest.fixture(scope="function", name="real_base_context")
-def fixture_real_base_context(real_spring_api, real_cram_api) -> dict:
-    """context to use in cli"""
-
+@pytest.fixture(name="real_base_context")
+def fixture_real_base_context(real_spring_api: SpringProcess, real_cram_api: CramProcess) -> dict[str, Any]:
+    """Return real base context to use in CLI."""
     return {
         "spring_api": real_spring_api,
         "cram_api": real_cram_api,
     }
 
 
-@pytest.yield_fixture
-def non_existing_path() -> pathlib.Path:
-    """Return the path tp a non existing file"""
-    _file_path = pathlib.Path(tempfile.NamedTemporaryFile().name)
-    yield _file_path
+@pytest.fixture(name="non_existing_path")
+def fixture_non_existing_path() -> Generator[Path, None, None]:
+    """Return the path tp a non-existing file."""
+    yield Path(tempfile.NamedTemporaryFile().name)
