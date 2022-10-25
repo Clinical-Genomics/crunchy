@@ -31,7 +31,7 @@ def parse_reqs(req_path="./requirements.txt"):
         )
 
         for line in lines:
-            if line.startswith("-i"):
+            if line.startswith("-i") or line.startswith("-e"):
                 continue
             # check for nested requirements files
             if line.startswith("-r"):
