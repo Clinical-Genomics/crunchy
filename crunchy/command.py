@@ -6,13 +6,14 @@ import copy
 import logging
 import pathlib
 import subprocess
+from pathlib import Path
 from subprocess import CalledProcessError
 
 LOG = logging.getLogger(__name__)
 
 
 class Process:
-    """Class to handle communication with other programs via the shell
+    """Class to handle communication with other programs via the shell.
 
     The other parts of the code should not need to have any knowledge about how the processes are
     called, that will be handled in this module.Output form stdout and stdin will be handeld here.
@@ -35,7 +36,7 @@ class Process:
         self._stderr = ""
 
     def run_command(self, parameters=None):
-        """Execute a command in the shell
+        """Execute a command in the shell.
 
         Args:
             parameters(list)
@@ -60,7 +61,7 @@ class Process:
 
     @property
     def stdout(self):
-        """Fetch stdout"""
+        """Fetch stdout."""
         return self._stdout
 
     @stdout.setter
@@ -73,7 +74,7 @@ class Process:
 
     @property
     def stderr(self):
-        """Fetch stderr"""
+        """Fetch stderr."""
         return self._stderr
 
     @stderr.setter
@@ -85,12 +86,12 @@ class Process:
         del self._stderr
 
     def stdout_lines(self):
-        """Iterate over the lines in self.stdout"""
+        """Iterate over the lines in self.stdout."""
         for line in self.stdout.split("\n"):
             yield line
 
     def stderr_lines(self):
-        """Iterate over the lines in self.stderr"""
+        """Iterate over the lines in self.stderr."""
         for line in self.stderr.split("\n"):
             yield line
 
@@ -99,7 +100,7 @@ class Process:
 
 
 class SpringProcess(Process):
-    """Process to deal with spring commands"""
+    """Process to deal with spring commands."""
 
     def __init__(self, binary, threads=8, tmp_dir=None):
         """Initialise a spring process"""
@@ -108,9 +109,9 @@ class SpringProcess(Process):
         self.tmp = tmp_dir
 
     def decompress(
-        self, spring_path: pathlib.Path, first: pathlib.Path, second: pathlib.Path
+        self, spring_path: Path, first: Path, second: Path
     ) -> bool:
-        """Run the spring decompress command"""
+        """Run the spring decompress command."""
         parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
         if first.suffix == ".gz":
             LOG.info("Compressing to gzipped format")
@@ -140,9 +141,9 @@ class SpringProcess(Process):
         return False
 
     def compress(
-        self, first: pathlib.Path, second: pathlib.Path, outfile: pathlib.Path
+        self, first: Path, second: Path, outfile: Path
     ) -> bool:
-        """Run the spring compression command"""
+        """Run the spring compression command."""
         parameters = [
             "-c",
             "-i",
@@ -186,7 +187,7 @@ class SpringProcess(Process):
 
 
 class CramProcess(Process):
-    """Process to deal with cram commands"""
+    """Process to deal with cram commands."""
 
     def __init__(self, binary: str, refgenome_path: str, threads=8):
         """Initialise a spring process"""
@@ -194,8 +195,8 @@ class CramProcess(Process):
         self.refgenome_path = refgenome_path
         self.threads = threads
 
-    def decompress(self, cram_path: pathlib.Path, bam_path: pathlib.Path) -> bool:
-        """Convert cram to bam"""
+    def decompress(self, cram_path: Path, bam_path: Path) -> bool:
+        """Convert CRAM to BAM."""
         LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
         parameters = [
             "view",
@@ -209,8 +210,8 @@ class CramProcess(Process):
         self.run_command(parameters)
         return True
 
-    def compress(self, bam_path: pathlib.Path, cram_path: pathlib.Path) -> bool:
-        """Convert bam to cram"""
+    def compress(self, bam_path: Path, cram_path: Path) -> bool:
+        """Convert BAM to CRAM."""
         LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
         parameters = [
             "view",
@@ -226,27 +227,25 @@ class CramProcess(Process):
         return True
 
     @staticmethod
-    def get_index_path(file_path: pathlib.Path) -> pathlib.Path:
-        """Create a index path based on a file name"""
-        index_suffix = ".crai"
-        if file_path.suffix == ".bam":
-            index_suffix = ".bai"
+    def get_index_path(file_path: Path) -> Path:
+        """Create a index path based on a file name."""
+        index_suffix = ".bai" if file_path.suffix == ".bam" else ".crai"
         return file_path.with_suffix(file_path.suffix + index_suffix)
 
-    def index(self, file_path: pathlib.Path):
-        """Index a bam or cram file"""
+    def index(self, file_path: Path):
+        """Index a bam or cram file."""
         LOG.info("Creating index for %s", file_path)
         index_path = self.get_index_path(file_path)
         parameters = ["index", str(file_path), str(index_path)]
         self.run_command(parameters)
 
     def self_check(self):
-        """Run a check and see that all parameters are valid"""
-        LOG.info("Check that Cram process is correctly initialized")
+        """Run a check and see that all parameters are valid."""
+        LOG.info("Check that Cram process is correctly initialized.")
         if self.refgenome_path is None:
             LOG.warning("Please specify the path to a reference genome")
             raise SyntaxError
-        if not pathlib.Path(self.refgenome_path).exists():
+        if not Path(self.refgenome_path).exists():
             LOG.warning("Reference genome %s does not exist", self.refgenome_path)
             raise FileNotFoundError
 

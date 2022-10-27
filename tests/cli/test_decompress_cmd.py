@@ -1,6 +1,7 @@
 """Tests for decompress command"""
 import pathlib
 import shutil
+from pathlib import Path
 
 from click.testing import CliRunner
 
@@ -86,7 +87,7 @@ def test_decompress_spring_no_fastq_existing_paths(
 
 
 def test_decompress_spring_with_fastq(
-    spring_tmp_file, first_tmp_path, second_tmp_path, base_context
+    spring_tmp_file, first_tmp_path, second_tmp_path: Path, base_context
 ):
     """Test to run the compress base command"""
     # GIVEN a cli runner
@@ -94,7 +95,7 @@ def test_decompress_spring_with_fastq(
     # WHEN running the decompress command with fastq files
     result = runner.invoke(
         spring,
-        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", str(second_tmp_path)],
+        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", second_tmp_path.as_posix()],
         obj=base_context,
     )
     # THEN assert the command was succesful
@@ -104,7 +105,7 @@ def test_decompress_spring_with_fastq(
 def test_decompress_spring_with_result(
     spring_tmp_file,
     first_tmp_path,
-    second_tmp_path,
+    second_tmp_path: Path,
     base_context,
     first_read,
     second_read,
@@ -121,7 +122,7 @@ def test_decompress_spring_with_result(
     # WHEN running the decompress command with fastq files
     result = runner.invoke(
         spring,
-        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", str(second_tmp_path)],
+        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", second_tmp_path.as_posix()],
         obj=base_context,
     )
     # THEN assert the command was succesful
@@ -133,12 +134,12 @@ def test_decompress_spring_with_result(
 def test_decompress_spring_with_fastq_and_integrity_check(
     spring_tmp_file,
     first_tmp_path,
-    second_tmp_path,
+    second_tmp_path: Path,
     base_context,
     first_read,
     second_read,
 ):
-    """Test to run decompress spring command with integrity check"""
+    """Test to run decompress spring command with integrity check."""
     # GIVEN a cli runner
     runner = CliRunner()
     # GIVEN fasq paths that does not exist
@@ -158,7 +159,7 @@ def test_decompress_spring_with_fastq_and_integrity_check(
             "-f",
             str(first_tmp_path),
             "-s",
-            str(second_tmp_path),
+            second_tmp_path.as_posix(),
             "--first-checksum",
             checksum1,
             "--second-checksum",
@@ -175,7 +176,7 @@ def test_decompress_spring_with_fastq_and_integrity_check(
 def test_decompress_spring_with_fastq_failing_integrity_check(
     spring_tmp_file,
     first_tmp_path,
-    second_tmp_path,
+    second_tmp_path: Path,
     base_context,
     first_read,
     second_read,
@@ -201,7 +202,7 @@ def test_decompress_spring_with_fastq_failing_integrity_check(
             "-f",
             str(first_tmp_path),
             "-s",
-            str(second_tmp_path),
+            second_tmp_path.as_posix(),
             "--first-checksum",
             checksum1,
             "--second-checksum",
@@ -216,7 +217,7 @@ def test_decompress_spring_with_fastq_failing_integrity_check(
 
 
 def test_decompress_spring_with_fastq_real_run(
-    spring_tmp_file, first_tmp_path, second_tmp_path, real_base_context
+    spring_tmp_file, first_tmp_path, second_tmp_path: Path, real_base_context
 ):
     """Test to run the decompress spring command"""
     # GIVEN a cli runner
@@ -227,7 +228,7 @@ def test_decompress_spring_with_fastq_real_run(
     # WHEN running the decompress command with real data
     result = runner.invoke(
         spring,
-        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", str(second_tmp_path)],
+        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", second_tmp_path.as_posix()],
         obj=real_base_context,
     )
     # THEN assert the command was succesful

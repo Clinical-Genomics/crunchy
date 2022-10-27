@@ -1,4 +1,4 @@
-"""Code for checksum module"""
+"""Code for checksum module."""
 import logging
 import pathlib
 
@@ -47,10 +47,9 @@ def compare(first, second, algorithm, checksum, dry_run):
         _infile = pathlib.Path(_infile)
         checksums.append(get_checksum(_infile, algorithm))
 
-    if not dry_run:
-        if not compare_elements(checksums):
-            LOG.warning("Checksums for %s and %s are NOT the same", first, second)
-            raise click.Abort
+    if not dry_run and not compare_elements(checksums):
+        LOG.warning(f"Checksums for {first} and {second} are NOT the same")
+        raise click.Abort
 
-    LOG.info("Checksum: %s", checksums[0])
+    LOG.info(f"Checksum: {checksums[0]}")
     LOG.info("All checksums are the same")

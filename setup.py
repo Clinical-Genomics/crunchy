@@ -1,5 +1,7 @@
 """Based on https://github.com/kennethreitz/setup.py"""
 
+
+import contextlib
 import io
 import os
 import sys
@@ -11,9 +13,9 @@ from setuptools import Command, find_packages, setup
 NAME = "crunchy"
 DESCRIPTION = "Compress fastq with spring"
 URL = "https://github.com/Clinical-Genomics/crunchy"
-EMAIL = "mans.magnusson@scilifelab.com"
+EMAIL = "henrik.stranneheim@scilifelab.com"
 AUTHOR = "Mans Magnusson"
-REQUIRES_PYTHON = ">=3.6.0"
+REQUIRES_PYTHON = ">=3.9.0"
 VERSION = None
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -29,6 +31,8 @@ def parse_reqs(req_path="./requirements.txt"):
         )
 
         for line in lines:
+            if line.startswith("-i") or line.startswith("-e"):
+                continue
             # check for nested requirements files
             if line.startswith("-r"):
                 # recursively call this function
@@ -82,18 +86,17 @@ class UploadCommand(Command):
         print("\033[1m{0}\033[0m".format(s))
 
     def initialize_options(self):
-        pass
+        """Set or (reset) all options/attributes/caches used by the command to their default values."""
+        pass  # currentlu, nothing needs resetting
 
     def finalize_options(self):
-        pass
+        """Set final values for all options/attributes used by the command."""
+        pass  # currently, nothing no final values needs to be set
 
     def run(self):
-        try:
+        with contextlib.suppress(OSError):
             self.status("Removing previous builds…")
             rmtree(os.path.join(HERE, "dist"))
-        except OSError:
-            pass
-
         self.status("Building Source and Wheel (universal) distribution…")
         os.system("{0} setup.py sdist bdist_wheel --universal".format(sys.executable))
 
@@ -131,7 +134,7 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.10",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Unix",
         "Intended Audience :: Science/Research",
