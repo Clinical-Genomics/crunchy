@@ -19,7 +19,7 @@ def test_compress_spring(first_read, second_read, spring_api: SpringProcess):
         outfile=outpath,
         spring_api=spring_api,
     )
-    # THEN assert that the run was succesfull
+    # THEN assert that the run was successfull
     assert res is True
 
 
@@ -44,7 +44,7 @@ def test_compress_cram(bam_path, cram_path, cram_api):
     # GIVEN a bam_path, a cram path and a cram_api
     # WHEN running the compression
     res = compress_cram(bam_path=bam_path, cram_path=cram_path, cram_api=cram_api)
-    # THEN assert that the run was succesfull
+    # THEN assert that the run was successfull
     assert res is True
 
 
@@ -56,5 +56,5 @@ def test_compress_cram_dry_run(bam_path, cram_api: CramProcess, cram_path):
     res = compress_cram(
         bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=True
     )
-    # THEN assert that the run was succesfull
+    # THEN assert that the run was successfull
     assert res is True
