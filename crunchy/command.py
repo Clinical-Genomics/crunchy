@@ -157,7 +157,7 @@ class SpringProcess(Process):
             LOG.info("File(s) are gzipped")
             parameters.append("-g")
 
-        if self.tmp is not None:
+        if self.tmp:
             parameters.extend(["--working-dir", self.tmp])
 
         LOG.info("Compressing FASTQ to Spring")
