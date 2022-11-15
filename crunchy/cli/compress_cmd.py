@@ -1,6 +1,7 @@
 """CLI functions to compress."""
 import logging
-import pathlib
+from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -58,9 +59,9 @@ def fastq(
         LOG.warning("Dry Run! No files will be created or deleted")
 
     spring_api = ctx.obj.get("spring_api")
-    first_read = pathlib.Path(first_read)
-    second_read = pathlib.Path(second_read)
-    spring_path = pathlib.Path(spring_path) if spring_path else spring_outpath(first_read)
+    first_read = Path(first_read)
+    second_read = Path(second_read)
+    spring_path = Path(spring_path) if spring_path else spring_outpath(first_read)
 
     file_exists(spring_path, exists=False)
 
@@ -76,12 +77,12 @@ def fastq(
         first_read=first_read, second_read=second_read, spring=spring_path
     )
 
-    metadata_path = dump_spring_metadata(metadata) if metadata_file else None
+    metadata_path: Optional[Path]= dump_spring_metadata(metadata) if metadata_file else None
     if not check_integrity:
         return
 
-    first_spring = pathlib.Path(first_read).with_suffix(".spring.fastq")
-    second_spring = pathlib.Path(second_read).with_suffix(".spring.fastq")
+    first_spring = Path(first_read).with_suffix(".spring.fastq")
+    second_spring = Path(second_read).with_suffix(".spring.fastq")
 
     ctx.invoke(
         decompress_spring_cmd,
@@ -140,7 +141,7 @@ def fastq(
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
-def bam(ctx, bam_path, cram_path, dry_run):
+def bam(ctx, bam_path: click.Path, cram_path: str, dry_run: bool):
     """Compress a BAM file to CRAM format with Samtools."""
     LOG.info("Running compress BAM")
     if dry_run:
@@ -150,8 +151,8 @@ def bam(ctx, bam_path, cram_path, dry_run):
         cram_api.self_check()
     except (SyntaxError, FileNotFoundError) as error:
         raise click.Abort from error
-    bam_path = pathlib.Path(bam_path)
-    cram_path = pathlib.Path(cram_path) if cram_path else cram_outpath(bam_path)
+    bam_path: Path = Path(bam_path)
+    cram_path: Path = Path(cram_path) if cram_path else cram_outpath(bam_path)
     file_exists(cram_path, exists=False)
     compress_cram(
         bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,

@@ -7,6 +7,7 @@ import logging
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
+from typing import Optional
 
 LOG = logging.getLogger(__name__)
 
@@ -18,7 +19,7 @@ class Process:
     called, that will be handled in this module.Output form stdout and stdin will be handeld here.
     """
 
-    def __init__(self, binary, config=None, config_parameter="--config"):
+    def __init__(self, binary: str, config: str = None, config_parameter: str ="--config"):
         """
         Args:
             binary(str): Path to binary for the process to use
@@ -97,13 +98,13 @@ class Process:
 
 
 class SpringProcess(Process):
-    """Process to deal with Sring commands."""
+    """Process to deal with String commands."""
 
-    def __init__(self, binary, threads=8, tmp_dir=None):
+    def __init__(self, binary: str, threads: int = 8, tmp_dir: Optional[str] = None):
         """Initialise a spring process."""
         super().__init__(binary)
-        self.threads = threads
-        self.tmp = tmp_dir
+        self.threads: int = threads
+        self.tmp: Optional[str] = tmp_dir
 
     def decompress(
         self, spring_path: Path, first: Path, second: Path
@@ -114,7 +115,7 @@ class SpringProcess(Process):
             LOG.info("Compressing to gzipped format")
             parameters.append("-g")
 
-        if self.tmp is not None:
+        if self.tmp:
             parameters.extend(["--working-dir", self.tmp])
 
         LOG.info("Decompressing Spring compressed file")
@@ -186,11 +187,11 @@ class SpringProcess(Process):
 class CramProcess(Process):
     """Process to deal with CRAM commands."""
 
-    def __init__(self, binary: str, refgenome_path: str, threads=8):
+    def __init__(self, binary: str, refgenome_path: str, threads: int = 8):
         """Initialise a spring process."""
         super().__init__(binary)
-        self.refgenome_path = refgenome_path
-        self.threads = threads
+        self.refgenome_path: str = refgenome_path
+        self.threads: int = threads
 
     def decompress(self, cram_path: Path, bam_path: Path) -> bool:
         """Convert CRAM to BAM."""
