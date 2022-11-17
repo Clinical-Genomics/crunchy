@@ -7,7 +7,7 @@ import logging
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Optional, List
+from typing import Optional, List, Generator
 
 LOG = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class Process:
         super(Process, self).__init__()
         self.binary: str = binary
         LOG.info(f"Initialising Process with binary: {self.binary}")
-        self.base_call. List[str] = [self.binary]
+        self.base_call: List[str] = [self.binary]
         if config:
             self.base_call.extend([config_parameter, config])
         LOG.info(f"Use base call {self.base_call}")
@@ -85,11 +85,11 @@ class Process:
     def stderr(self):
         del self._stderr
 
-    def stdout_lines(self) -> List[str]:
+    def stdout_lines(self) -> Generator[List[str], None, None]:
         """Iterate over the lines in self.stdout."""
         yield from self.stdout.split("\n")
 
-    def stderr_lines(self) -> List[str]:
+    def stderr_lines(self) -> Generator[List[str], None, None]:
         """Iterate over the lines in self.stderr."""
         yield from self.stderr.split("\n")
 
