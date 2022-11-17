@@ -7,7 +7,7 @@ import logging
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Optional
+from typing import Optional, List
 
 LOG = logging.getLogger(__name__)
 
@@ -19,21 +19,21 @@ class Process:
     called, that will be handled in this module.Output form stdout and stdin will be handeld here.
     """
 
-    def __init__(self, binary: str, config: str = None, config_parameter: str ="--config"):
+    def __init__(self, binary: str, config: Optional[str] = None, config_parameter: str = "--config"):
         """
         Args:
             binary(str): Path to binary for the process to use
             config(str): Path to config if used by process
         """
         super(Process, self).__init__()
-        self.binary = binary
+        self.binary: str = binary
         LOG.info(f"Initialising Process with binary: {self.binary}")
-        self.base_call = [self.binary]
+        self.base_call. List[str] = [self.binary]
         if config:
             self.base_call.extend([config_parameter, config])
         LOG.info(f"Use base call {self.base_call}")
-        self._stdout = ""
-        self._stderr = ""
+        self._stdout: str = ""
+        self._stderr: str = ""
 
     def run_command(self, parameters=None):
         """Execute a command in the shell.
@@ -85,15 +85,15 @@ class Process:
     def stderr(self):
         del self._stderr
 
-    def stdout_lines(self):
+    def stdout_lines(self) -> List[str]:
         """Iterate over the lines in self.stdout."""
         yield from self.stdout.split("\n")
 
-    def stderr_lines(self):
+    def stderr_lines(self) -> List[str]:
         """Iterate over the lines in self.stderr."""
         yield from self.stderr.split("\n")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Process:base_call:{self.base_call}"
 
 
