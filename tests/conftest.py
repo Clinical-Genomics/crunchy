@@ -61,7 +61,7 @@ def fixture_first_read(fixtures_dir: Path) -> Path:
 
 @pytest.fixture(name="second_read")
 def fixture_second_read(fixtures_dir: Path) -> Path:
-    """Return the path second read in read pair"""
+    """Return the path second read in read pair."""
     return Path(fixtures_dir, "fastq", "TEST_R2_001.fq.gz")
 
 
@@ -240,7 +240,7 @@ class MockSpringProcess:
 
 
 class MockCramProcess:
-    """Mock the Spring API."""
+    """Mock the CRAM API."""
 
     def __init__(self, binary="samtools", refgenome_path="genome.fasta", threads=8):
         """Initialize a CramProcessMock."""

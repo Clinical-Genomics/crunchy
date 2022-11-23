@@ -169,7 +169,7 @@ def test_decompress_spring_with_fastq_and_integrity_check(
     )
     # THEN assert the command was succesful
     assert result.exit_code == 0
-    # THEN assert that the integrity check was succesfull
+    # THEN assert that the integrity check was successful
     assert first_tmp_path.exists() and second_tmp_path.exists()
 
 

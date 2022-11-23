@@ -1,13 +1,13 @@
 """
-Code to handle communications to the shell
+Code to handle communications to the shell.
 """
 
 import copy
 import logging
-import pathlib
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
+from typing import Optional, List, Generator
 
 LOG = logging.getLogger(__name__)
 
@@ -19,21 +19,21 @@ class Process:
     called, that will be handled in this module.Output form stdout and stdin will be handeld here.
     """
 
-    def __init__(self, binary, config=None, config_parameter="--config"):
+    def __init__(self, binary: str, config: Optional[str] = None, config_parameter: str = "--config"):
         """
         Args:
             binary(str): Path to binary for the process to use
             config(str): Path to config if used by process
         """
         super(Process, self).__init__()
-        self.binary = binary
-        LOG.info("Initialising Process with binary: %s", self.binary)
-        self.base_call = [self.binary]
+        self.binary: str = binary
+        LOG.info(f"Initialising Process with binary: {self.binary}")
+        self.base_call: List[str] = [self.binary]
         if config:
             self.base_call.extend([config_parameter, config])
-        LOG.info("Use base call %s", self.base_call)
-        self._stdout = ""
-        self._stderr = ""
+        LOG.info(f"Use base call {self.base_call}")
+        self._stdout: str = ""
+        self._stderr: str = ""
 
     def run_command(self, parameters=None):
         """Execute a command in the shell.
@@ -53,7 +53,7 @@ class Process:
         self.stdout = res.stdout.decode("utf-8").rstrip()
         self.stderr = res.stderr.decode("utf-8").rstrip()
         if res.returncode != 0:
-            LOG.critical("Call %s exit with a non zero exit code", command)
+            LOG.critical(f"Call {command} exit with a non zero exit code", )
             LOG.critical(self.stderr)
             raise CalledProcessError(command, res.returncode)
 
@@ -85,28 +85,26 @@ class Process:
     def stderr(self):
         del self._stderr
 
-    def stdout_lines(self):
+    def stdout_lines(self) -> Generator[List[str], None, None]:
         """Iterate over the lines in self.stdout."""
-        for line in self.stdout.split("\n"):
-            yield line
+        yield from self.stdout.split("\n")
 
-    def stderr_lines(self):
+    def stderr_lines(self) -> Generator[List[str], None, None]:
         """Iterate over the lines in self.stderr."""
-        for line in self.stderr.split("\n"):
-            yield line
+        yield from self.stderr.split("\n")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Process:base_call:{self.base_call}"
 
 
 class SpringProcess(Process):
-    """Process to deal with spring commands."""
+    """Process to deal with String commands."""
 
-    def __init__(self, binary, threads=8, tmp_dir=None):
-        """Initialise a spring process"""
+    def __init__(self, binary: str, threads: int = 8, tmp_dir: Optional[str] = None):
+        """Initialise a spring process."""
         super().__init__(binary)
-        self.threads = threads
-        self.tmp = tmp_dir
+        self.threads: int = threads
+        self.tmp: Optional[str] = tmp_dir
 
     def decompress(
         self, spring_path: Path, first: Path, second: Path
@@ -117,10 +115,10 @@ class SpringProcess(Process):
             LOG.info("Compressing to gzipped format")
             parameters.append("-g")
 
-        if self.tmp is not None:
+        if self.tmp:
             parameters.extend(["--working-dir", self.tmp])
 
-        LOG.info("Decompressing spring compressed file")
+        LOG.info("Decompressing Spring compressed file")
         self.run_command(parameters)
         success = False
         time_to_decompress = "unknown"
@@ -132,8 +130,8 @@ class SpringProcess(Process):
                 time_to_decompress = line.split(" ")[-2]
 
         if success:
-            LOG.info("Spring decompression succesfully completed!")
-            LOG.info("Time to decompress: %s", time_to_decompress)
+            LOG.info("Spring decompression successfully completed!")
+            LOG.info(f"Time to decompress: {time_to_decompress}")
             return True
 
         LOG.error("Spring decompression failed")
@@ -159,10 +157,10 @@ class SpringProcess(Process):
             LOG.info("File(s) are gzipped")
             parameters.append("-g")
 
-        if self.tmp is not None:
+        if self.tmp:
             parameters.extend(["--working-dir", self.tmp])
 
-        LOG.info("Compressing fastq to spring")
+        LOG.info("Compressing FASTQ to Spring")
         self.run_command(parameters)
         success = False
         time_to_compress = "unknown"
@@ -174,8 +172,8 @@ class SpringProcess(Process):
                 time_to_compress = line.split(" ")[-2]
 
         if success:
-            LOG.info("Spring compression succesfully completed!")
-            LOG.info("Time to compress: %s", time_to_compress)
+            LOG.info("Spring compression successfully completed!")
+            LOG.info(f"Time to compress: {time_to_compress}")
             return True
 
         LOG.error("Spring compression failed")
@@ -187,17 +185,17 @@ class SpringProcess(Process):
 
 
 class CramProcess(Process):
-    """Process to deal with cram commands."""
+    """Process to deal with CRAM commands."""
 
-    def __init__(self, binary: str, refgenome_path: str, threads=8):
-        """Initialise a spring process"""
+    def __init__(self, binary: str, refgenome_path: str, threads: int = 8):
+        """Initialise a spring process."""
         super().__init__(binary)
-        self.refgenome_path = refgenome_path
-        self.threads = threads
+        self.refgenome_path: str = refgenome_path
+        self.threads: int = threads
 
     def decompress(self, cram_path: Path, bam_path: Path) -> bool:
         """Convert CRAM to BAM."""
-        LOG.info("Decompressing cram %s to bam %s", cram_path, bam_path)
+        LOG.info(f"Decompressing cram {cram_path} to bam {bam_path}")
         parameters = [
             "view",
             "-b",
@@ -212,7 +210,7 @@ class CramProcess(Process):
 
     def compress(self, bam_path: Path, cram_path: Path) -> bool:
         """Convert BAM to CRAM."""
-        LOG.info("Compressing bam %s to cram %s", bam_path, cram_path)
+        LOG.info(f"Compressing BAN {bam_path} to CRAM {cram_path}")
         parameters = [
             "view",
             "-C",
@@ -233,8 +231,8 @@ class CramProcess(Process):
         return file_path.with_suffix(file_path.suffix + index_suffix)
 
     def index(self, file_path: Path):
-        """Index a bam or cram file."""
-        LOG.info("Creating index for %s", file_path)
+        """Index a BAM or CRAM file."""
+        LOG.info(f"Creating index for {file_path}")
         index_path = self.get_index_path(file_path)
         parameters = ["index", str(file_path), str(index_path)]
         self.run_command(parameters)
