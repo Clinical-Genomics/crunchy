@@ -13,10 +13,10 @@ jobs:
     steps:
 
     - name: Git checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2.5.0
 
     - name: Get Conda
-      uses: conda-incubator/setup-miniconda@v2
+      uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         auto-update-conda: true
         python-version: ${{ matrix.python-version }}
