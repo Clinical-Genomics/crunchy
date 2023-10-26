@@ -1,10 +1,10 @@
 ################## BASE IMAGE ######################
 
-FROM python:3.10-slim
+FROM python:3.11-slim
 
 ################## METADATA ######################
 
-LABEL base.image="python:3.10-slim"
+LABEL base.image="python:3.11-slim"
 LABEL version="3"
 LABEL software="crunchy"
 LABEL software.version="1.0.2"
@@ -12,7 +12,7 @@ LABEL extra.binaries="crunchy"
 LABEL maintainer="Clinical-Genomics"
 
 
-RUN conda install python=3.10 pip samtools=1.16.1=h6899075_1 spring=1.0=he513fc3_0
+RUN conda install python=3.11 pip samtools=1.16.1=h6899075_1 spring=1.0=he513fc3_0
 
 ## Clean up after conda
 RUN /opt/conda/bin/conda clean -tipsy

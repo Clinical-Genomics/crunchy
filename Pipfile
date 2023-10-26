@@ -19,4 +19,4 @@ black = "==19.10b0"
 crunchy = {editable = true, path = "."}
 
 [requires]
-python_version = "3.10.6"
+python_version = "3.11"
