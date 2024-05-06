@@ -24,9 +24,7 @@ def test_get_fastq_info(first_read):
     # GIVEN a fastq file
 
     # WHEN fetching the file info
-    res = metadata.get_fastq_info(
-        fastq=first_read, tag="first_read", algorithm="sha256"
-    )
+    res = metadata.get_fastq_info(fastq=first_read, tag="first_read", algorithm="sha256")
 
     # THEN assert that the result is a dictionary
     assert isinstance(res, dict)

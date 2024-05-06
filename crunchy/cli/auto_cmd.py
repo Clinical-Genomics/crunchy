@@ -1,4 +1,5 @@
 """Code for CLI auto command"""
+
 import logging
 import pathlib
 
@@ -19,8 +20,7 @@ def abort_if_false(ctx, param, value):
 
 @click.group()
 def auto():
-    """Run whole pipeline by compressing, comparing and deleting original files.
-    """
+    """Run whole pipeline by compressing, comparing and deleting original files."""
     LOG.info("Running crunchy auto")
 
 
@@ -57,7 +57,8 @@ def fastq(ctx, indir, spring_path, first, second, dry_run):
 
     if indir:
         LOG.info(
-            "This will recursively compress and delete fastqs in %s", indir,
+            "This will recursively compress and delete fastqs in %s",
+            indir,
         )
         indir = pathlib.Path(indir)
         if not indir.is_dir():
@@ -67,9 +68,7 @@ def fastq(ctx, indir, spring_path, first, second, dry_run):
 
     else:
         if not (first and second and spring_path):
-            LOG.warning(
-                "Please specify either a directory or two fastqs and a spring path"
-            )
+            LOG.warning("Please specify either a directory or two fastqs and a spring path")
             return
         LOG.info(
             "Running auto, this will compress and delete fastqs %s, %s into %s",

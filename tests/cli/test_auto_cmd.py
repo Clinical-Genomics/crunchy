@@ -1,4 +1,5 @@
 """Test for the auto functionality in crunchy"""
+
 import pathlib
 
 from click.testing import CliRunner
@@ -39,9 +40,7 @@ def test_auto_pairs(base_context, first_tmp_file, second_tmp_file):
     assert result.exit_code == 0
 
 
-def test_auto_pairs_and_spring(
-    base_context, first_tmp_file, second_tmp_file, spring_tmp_path
-):
+def test_auto_pairs_and_spring(base_context, first_tmp_file, second_tmp_file, spring_tmp_path):
     """Test auto fastq with files"""
     # GIVEN a cli runner
     runner = CliRunner()
@@ -77,9 +76,7 @@ def test_auto_dir_nodir_dry_run(base_context, first_read):
     assert result.exit_code == 0
 
 
-def test_auto_dir_real_data(
-    real_base_context, first_tmp_file, second_tmp_file, project_dir
-):
+def test_auto_dir_real_data(real_base_context, first_tmp_file, second_tmp_file, project_dir):
     """Test auto fastq with dir"""
     # GIVEN a cli runner and a path to a directory with a pair of fastq files
     runner = CliRunner()
@@ -89,9 +86,7 @@ def test_auto_dir_real_data(
     spring_path = spring_outpath(first_tmp_file)
     assert not spring_path.exists()
     # WHEN running the auto base command
-    result = runner.invoke(
-        fastq, ["--indir", str(project_dir), "--yes"], obj=real_base_context
-    )
+    result = runner.invoke(fastq, ["--indir", str(project_dir), "--yes"], obj=real_base_context)
     # THEN assert it exits without problems
     assert result.exit_code == 0
     # THEN assert that the spring file was created

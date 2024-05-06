@@ -1,4 +1,5 @@
 """Code for decompress CLI fuctions"""
+
 import logging
 import pathlib
 
@@ -32,18 +33,20 @@ def decompress():
     help="Fastq file that spring archive will be decompressed to. Second read in pair",
 )
 @click.option(
-    "--first-checksum", help="Checksum from the original fastq file, first in pair",
+    "--first-checksum",
+    help="Checksum from the original fastq file, first in pair",
 )
 @click.option(
-    "--second-checksum", help="Checksum from the original fastq file, second in pair",
+    "--second-checksum",
+    help="Checksum from the original fastq file, second in pair",
 )
 @click.option(
-    "--dry-run", is_flag=True, help="Skip deleting original files",
+    "--dry-run",
+    is_flag=True,
+    help="Skip deleting original files",
 )
 @click.pass_context
-def spring(
-    ctx, spring_path, first_read, second_read, first_checksum, second_checksum, dry_run
-):
+def spring(ctx, spring_path, first_read, second_read, first_checksum, second_checksum, dry_run):
     """Decompress a spring file to fastq files"""
     LOG.info("Running decompress spring")
     spring_api = ctx.obj.get("spring_api")
@@ -74,12 +77,8 @@ def spring(
         return
 
     try:
-        ctx.invoke(
-            compare, first=str(first_read), checksum=first_checksum, dry_run=dry_run
-        )
-        ctx.invoke(
-            compare, first=str(second_read), checksum=second_checksum, dry_run=dry_run
-        )
+        ctx.invoke(compare, first=str(first_read), checksum=first_checksum, dry_run=dry_run)
+        ctx.invoke(compare, first=str(second_read), checksum=second_checksum, dry_run=dry_run)
     except click.Abort:
         LOG.error("Uncompressed spring differ from given checksum")
         LOG.info("Deleting decompressed fastq files")
@@ -100,7 +99,9 @@ def spring(
     help="Path to bam file",
 )
 @click.option(
-    "--dry-run", is_flag=True, help="Skip deleting original files",
+    "--dry-run",
+    is_flag=True,
+    help="Skip deleting original files",
 )
 @click.pass_context
 def cram(ctx, cram_path, bam_path, dry_run):
@@ -111,7 +112,10 @@ def cram(ctx, cram_path, bam_path, dry_run):
     bam_path = pathlib.Path(bam_path)
 
     decompress_cram(
-        cram_path=cram_path, bam_path=bam_path, cram_api=cram_api, dry_run=dry_run,
+        cram_path=cram_path,
+        bam_path=bam_path,
+        cram_api=cram_api,
+        dry_run=dry_run,
     )
 
 

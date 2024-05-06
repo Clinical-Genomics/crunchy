@@ -1,4 +1,5 @@
 """Tests for decompress command"""
+
 import pathlib
 import shutil
 from pathlib import Path
@@ -25,9 +26,7 @@ def test_decompress_cram(base_context, cram_tmp_file, bam_tmp_path):
     # GIVEN a cli runner
     runner = CliRunner()
     # WHEN running the decompress cram command
-    result = runner.invoke(
-        cram, [str(cram_tmp_file), "-b", str(bam_tmp_path)], obj=base_context
-    )
+    result = runner.invoke(cram, [str(cram_tmp_file), "-b", str(bam_tmp_path)], obj=base_context)
     # THEN assert the command succeeds
     assert result.exit_code == 0
 

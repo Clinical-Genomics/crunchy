@@ -1,4 +1,5 @@
 """Fixtures to test the command module"""
+
 import pytest
 
 

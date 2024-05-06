@@ -1,4 +1,5 @@
 """Tests for the command module"""
+
 import pathlib
 
 from crunchy.files import fastq_outpaths
