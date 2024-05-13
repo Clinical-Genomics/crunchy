@@ -53,9 +53,7 @@ class Process:
         self.stdout = res.stdout.decode("utf-8").rstrip()
         self.stderr = res.stderr.decode("utf-8").rstrip()
         if res.returncode != 0:
-            LOG.critical(
-                f"Call {command} exit with a non zero exit code",
-            )
+            LOG.critical(f"Call {command} exit with a non zero exit code")
             LOG.critical(self.stderr)
             raise CalledProcessError(command, res.returncode)
 
