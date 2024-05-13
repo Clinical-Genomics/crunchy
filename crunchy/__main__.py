@@ -24,6 +24,7 @@ The main entry point for the command line interface.
 Invoke as ``crunchy`` (if installed)
 or ``python -m crunchy`` (no install required).
 """
+
 import sys
 
 from crunchy.cli.base import base_command

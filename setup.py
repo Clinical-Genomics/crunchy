@@ -1,6 +1,5 @@
 """Based on https://github.com/kennethreitz/setup.py"""
 
-
 import contextlib
 import io
 import os
@@ -26,9 +25,7 @@ def parse_reqs(req_path="./requirements.txt"):
     install_requires = []
     with io.open(os.path.join(HERE, req_path), encoding="utf-8") as handle:
         # remove comments and empty lines
-        lines = (
-            line.strip() for line in handle if line.strip() and not line.startswith("#")
-        )
+        lines = (line.strip() for line in handle if line.strip() and not line.startswith("#"))
 
         for line in lines:
             if line.startswith("-i") or line.startswith("-e"):

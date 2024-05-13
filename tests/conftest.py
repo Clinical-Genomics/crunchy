@@ -1,8 +1,9 @@
 """Base conftest file."""
+
 import logging
-from pathlib import Path
 import shutil
 import sys
+from pathlib import Path
 from typing import Generator
 
 import pytest
@@ -183,11 +184,28 @@ def fixture_checksum_second_read(second_read: Path) -> str:
 
 @pytest.fixture(name="spring_metadata")
 def fixture_spring_metadata(
-    first_read: Path, second_read: Path, spring_tmp_path: Path, checksum_first_read: str, checksum_second_read: str
+    first_read: Path,
+    second_read: Path,
+    spring_tmp_path: Path,
+    checksum_first_read: str,
+    checksum_second_read: str,
 ):
     """Return metadata information."""
-    return [{"path": str(first_read.absolute()), "file": "first_read", "checksum": checksum_first_read, "algorithm": "sha256",}, {"path": str(second_read.absolute()), "file": "second_read", "checksum": checksum_second_read, "algorithm": "sha256",}, {"path": str(spring_tmp_path.absolute()), "file": "spring"},]
-
+    return [
+        {
+            "path": str(first_read.absolute()),
+            "file": "first_read",
+            "checksum": checksum_first_read,
+            "algorithm": "sha256",
+        },
+        {
+            "path": str(second_read.absolute()),
+            "file": "second_read",
+            "checksum": checksum_second_read,
+            "algorithm": "sha256",
+        },
+        {"path": str(spring_tmp_path.absolute()), "file": "spring"},
+    ]
 
 
 class MockSpringProcess:
@@ -209,9 +227,7 @@ class MockSpringProcess:
         LOG.info("Running command %s", " ".join(parameters))
         return 0
 
-    def decompress(
-        self, spring_path: Path, first: Path, second: Path
-    ) -> bool:
+    def decompress(self, spring_path: Path, first: Path, second: Path) -> bool:
         """Run the spring decompress command."""
         parameters = ["-d", "-i", spring_path.as_posix(), "-o", first.as_posix(), second.as_posix()]
         self.run_command(parameters)
@@ -221,9 +237,7 @@ class MockSpringProcess:
             shutil.copy(str(self._fastq2), second.as_posix())
         return True
 
-    def compress(
-        self, first: Path, second: Path, outfile: Path
-    ) -> bool:
+    def compress(self, first: Path, second: Path, outfile: Path) -> bool:
         """Run the spring compression command."""
         parameters = [
             "-c",

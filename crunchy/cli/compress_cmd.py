@@ -1,4 +1,5 @@
 """CLI functions to compress."""
+
 import logging
 from pathlib import Path
 from typing import Optional
@@ -36,7 +37,9 @@ def compress():
     help="Second read in pair",
 )
 @click.option(
-    "--spring-path", "-o", help="Path to spring file",
+    "--spring-path",
+    "-o",
+    help="Path to spring file",
 )
 @click.option(
     "--check-integrity",
@@ -50,9 +53,7 @@ def compress():
     help="If a json file with metada should be produced",
 )
 @click.pass_context
-def fastq(
-    ctx, first_read, second_read, spring_path, dry_run, check_integrity, metadata_file
-):
+def fastq(ctx, first_read, second_read, spring_path, dry_run, check_integrity, metadata_file):
     """Compress a pair of FASTQ files with Spring."""
     LOG.info("Running compress fastq")
     if dry_run:
@@ -77,7 +78,7 @@ def fastq(
         first_read=first_read, second_read=second_read, spring=spring_path
     )
 
-    metadata_path: Optional[Path]= dump_spring_metadata(metadata) if metadata_file else None
+    metadata_path: Optional[Path] = dump_spring_metadata(metadata) if metadata_file else None
     if not check_integrity:
         return
 
@@ -101,12 +102,8 @@ def fastq(
 
     success = True
     try:
-        ctx.invoke(
-            compare, first=str(first_spring), checksum=checksums[0], dry_run=dry_run
-        )
-        ctx.invoke(
-            compare, first=str(second_spring), checksum=checksums[1], dry_run=dry_run
-        )
+        ctx.invoke(compare, first=str(first_spring), checksum=checksums[0], dry_run=dry_run)
+        ctx.invoke(compare, first=str(second_spring), checksum=checksums[1], dry_run=dry_run)
     except click.Abort:
         LOG.error("Uncompressed Spring differ from original FASTQs")
         success = False
@@ -137,7 +134,9 @@ def fastq(
     help="Path to bam file",
 )
 @click.option(
-    "--cram-path", "-c", help="Path to cram file",
+    "--cram-path",
+    "-c",
+    help="Path to cram file",
 )
 @click.option("--dry-run", is_flag=True)
 @click.pass_context
@@ -155,7 +154,10 @@ def bam(ctx, bam_path: click.Path, cram_path: str, dry_run: bool):
     cram_path: Path = Path(cram_path) if cram_path else cram_outpath(bam_path)
     file_exists(cram_path, exists=False)
     compress_cram(
-        bam_path=bam_path, cram_path=cram_path, cram_api=cram_api, dry_run=dry_run,
+        bam_path=bam_path,
+        cram_path=cram_path,
+        cram_api=cram_api,
+        dry_run=dry_run,
     )
 
     LOG.info("Compression successful")
@@ -163,4 +165,3 @@ def bam(ctx, bam_path: click.Path, cram_path: str, dry_run: bool):
 
 for sub_cmd in [fastq, bam]:
     compress.add_command(sub_cmd)
-

@@ -1,4 +1,5 @@
 """Tests for utils"""
+
 from crunchy.files import spring_outpath
 from crunchy.utils import find_fastq_pairs
 

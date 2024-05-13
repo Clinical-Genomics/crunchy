@@ -1,4 +1,5 @@
 """Code to test the CLI compress commands"""
+
 import logging
 import pathlib
 
@@ -27,9 +28,7 @@ def test_compress_bam_dry_run(bam_tmp_file, base_context):
     bam_path = bam_tmp_file
     assert bam_path.exists()
     # WHEN running the compress command with dry_run
-    result = runner.invoke(
-        bam, ["--bam-path", str(bam_path), "--dry-run"], obj=base_context
-    )
+    result = runner.invoke(bam, ["--bam-path", str(bam_path), "--dry-run"], obj=base_context)
     # THEN assert the command was succesful
     assert result.exit_code == 0
 
@@ -41,7 +40,11 @@ def test_compress_bam_no_outpath(base_context, bam_tmp_file):
     bam_path = bam_tmp_file
     assert bam_path.exists()
     # WHEN running the compress command
-    result = runner.invoke(bam, ["--bam-path", bam_path], obj=base_context,)
+    result = runner.invoke(
+        bam,
+        ["--bam-path", bam_path],
+        obj=base_context,
+    )
     # THEN assert the command was succesful
     assert result.exit_code == 0
 
@@ -53,7 +56,9 @@ def test_compress_bam_valid_outpath(base_context, bam_path):
     runner = CliRunner()
     # WHEN running the compress command
     result = runner.invoke(
-        bam, ["--bam-path", str(bam_path), "--cram-path", outpath], obj=base_context,
+        bam,
+        ["--bam-path", str(bam_path), "--cram-path", outpath],
+        obj=base_context,
     )
     # THEN assert the command was succesful
     assert result.exit_code == 0
@@ -146,9 +151,7 @@ def test_compress_fastq_dry_run_integrity(first_read, second_read):
     assert result.exit_code == 0
 
 
-def test_compress_fastq_existing_spring_file(
-    first_read, second_read, spring_path, base_context
-):
+def test_compress_fastq_existing_spring_file(first_read, second_read, spring_path, base_context):
     """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
@@ -170,9 +173,7 @@ def test_compress_fastq_existing_spring_file(
     assert result.exit_code == 1
 
 
-def test_compress_fastq_valid_spring_file(
-    first_read, second_read, spring_tmp_path, base_context
-):
+def test_compress_fastq_valid_spring_file(first_read, second_read, spring_tmp_path, base_context):
     """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()
@@ -224,9 +225,7 @@ def test_compress_fastq_with_metadata(
     assert metadata_tmp_path.exists()
 
 
-def test_compress_fastq_real(
-    first_read, second_read, spring_tmp_path, real_base_context
-):
+def test_compress_fastq_real(first_read, second_read, spring_tmp_path, real_base_context):
     """Test to run the compress fastq command"""
     # GIVEN the path to a existing bam file and a cli runner
     runner = CliRunner()

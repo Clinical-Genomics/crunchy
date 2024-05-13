@@ -1,4 +1,5 @@
 """CLI functionality for crunchy"""
+
 import logging
 
 import click
@@ -18,9 +19,7 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
 
 
 @click.group()
-@click.option(
-    "--spring-binary", default="spring", show_default=True, help="Path to spring binary"
-)
+@click.option("--spring-binary", default="spring", show_default=True, help="Path to spring binary")
 @click.option(
     "--samtools-binary",
     default="samtools",
@@ -36,7 +35,9 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
 )
 @click.version_option(__version__)
 @click.option(
-    "--reference", "-r", help="Path to reference genome",
+    "--reference",
+    "-r",
+    help="Path to reference genome",
 )
 @click.option(
     "--log-level",
@@ -45,12 +46,11 @@ LOG_LEVELS = ["DEBUG", "INFO", "WARNING"]
     help="Choose what log messages to show",
 )
 @click.option(
-    "--tmp-dir", help="If specific temp dir should be used",
+    "--tmp-dir",
+    help="If specific temp dir should be used",
 )
 @click.pass_context
-def base_command(
-    ctx, spring_binary, samtools_binary, threads, reference, log_level, tmp_dir
-):
+def base_command(ctx, spring_binary, samtools_binary, threads, reference, log_level, tmp_dir):
     """Base command for crunchy
 
     \b

@@ -7,7 +7,7 @@ import logging
 import subprocess
 from pathlib import Path
 from subprocess import CalledProcessError
-from typing import Optional, List, Generator
+from typing import Generator, List, Optional
 
 LOG = logging.getLogger(__name__)
 
@@ -19,7 +19,9 @@ class Process:
     called, that will be handled in this module.Output form stdout and stdin will be handeld here.
     """
 
-    def __init__(self, binary: str, config: Optional[str] = None, config_parameter: str = "--config"):
+    def __init__(
+        self, binary: str, config: Optional[str] = None, config_parameter: str = "--config"
+    ):
         """
         Args:
             binary(str): Path to binary for the process to use
@@ -46,14 +48,12 @@ class Process:
             command.extend(parameters)
 
         LOG.info("Running command %s", " ".join(command))
-        res = subprocess.run(
-            command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        res = subprocess.run(command, check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         self.stdout = res.stdout.decode("utf-8").rstrip()
         self.stderr = res.stderr.decode("utf-8").rstrip()
         if res.returncode != 0:
-            LOG.critical(f"Call {command} exit with a non zero exit code", )
+            LOG.critical(f"Call {command} exit with a non zero exit code")
             LOG.critical(self.stderr)
             raise CalledProcessError(command, res.returncode)
 
@@ -106,9 +106,7 @@ class SpringProcess(Process):
         self.threads: int = threads
         self.tmp: Optional[str] = tmp_dir
 
-    def decompress(
-        self, spring_path: Path, first: Path, second: Path
-    ) -> bool:
+    def decompress(self, spring_path: Path, first: Path, second: Path) -> bool:
         """Run the spring decompress command."""
         parameters = ["-d", "-i", str(spring_path), "-o", str(first), str(second)]
         if first.suffix == ".gz":
@@ -138,9 +136,7 @@ class SpringProcess(Process):
         LOG.error(self.stderr)
         return False
 
-    def compress(
-        self, first: Path, second: Path, outfile: Path
-    ) -> bool:
+    def compress(self, first: Path, second: Path, outfile: Path) -> bool:
         """Run the spring compression command."""
         parameters = [
             "-c",

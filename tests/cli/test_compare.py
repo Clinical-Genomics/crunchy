@@ -11,9 +11,7 @@ def test_compare_same(first_read):
     # GIVEN the path to a gzipped file and a cli runner
     runner = CliRunner()
     # WHEN running the compare command
-    result = runner.invoke(
-        base_command, ["compare", "-f", str(first_read), "-s", str(first_read)]
-    )
+    result = runner.invoke(base_command, ["compare", "-f", str(first_read), "-s", str(first_read)])
     # THEN assert the command was succesful
     assert result.exit_code == 0
 
@@ -24,9 +22,7 @@ def test_compare_checksum(first_read):
     checksum = get_checksum(first_read)
     runner = CliRunner()
     # WHEN running the compare command
-    result = runner.invoke(
-        base_command, ["compare", "-f", str(first_read), "-c", checksum]
-    )
+    result = runner.invoke(base_command, ["compare", "-f", str(first_read), "-c", checksum])
     # THEN assert the command was succesful
     assert result.exit_code == 0
 
@@ -53,7 +49,8 @@ def test_compare_wrong_checksum(first_read, second_read):
     checksum = get_checksum(second_read)
     # WHEN running the compare command with one file and the wrong checksum
     result = runner.invoke(
-        base_command, ["compare", "-f", str(first_read), "-c", checksum],
+        base_command,
+        ["compare", "-f", str(first_read), "-c", checksum],
     )
     # THEN assert the command fails checksums differ
     assert result.exit_code == 1
@@ -64,9 +61,7 @@ def test_compare_different(first_read, second_read):
     # GIVEN the path to a gzipped file and a cli runner
     runner = CliRunner()
     # WHEN running the compare command
-    result = runner.invoke(
-        base_command, ["compare", "-f", str(first_read), "-s", str(second_read)]
-    )
+    result = runner.invoke(base_command, ["compare", "-f", str(first_read), "-s", str(second_read)])
     # THEN assert the command was succesful
     assert result.exit_code == 1
 
@@ -78,9 +73,7 @@ def test_check_logging(first_read):
     # GIVEN a checksum for the read
     checksum = get_checksum(first_read)
     # WHEN running the compare command
-    result = runner.invoke(
-        base_command, ["compare", "-f", str(first_read), "-s", str(first_read)]
-    )
+    result = runner.invoke(base_command, ["compare", "-f", str(first_read), "-s", str(first_read)])
     # THEN assert the checksum that is logged is the same
     new_checksum = None
     for message in result.output.split("\n"):

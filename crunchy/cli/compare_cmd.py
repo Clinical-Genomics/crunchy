@@ -1,4 +1,5 @@
 """Code for checksum module."""
+
 import logging
 import pathlib
 
@@ -13,11 +14,11 @@ LOG = logging.getLogger(__name__)
 @click.option("--first", "-f", type=click.Path(exists=True), required=True)
 @click.option("--second", "-s", type=click.Path(exists=True))
 @click.option(
-    "--checksum", "-c", help="If the file should be compared to a checksum directly",
+    "--checksum",
+    "-c",
+    help="If the file should be compared to a checksum directly",
 )
-@click.option(
-    "--algorithm", "-a", type=click.Choice(["md5", "sha1", "sha256"]), default="sha256"
-)
+@click.option("--algorithm", "-a", type=click.Choice(["md5", "sha1", "sha256"]), default="sha256")
 @click.option("--dry-run", is_flag=True)
 def compare(first, second, algorithm, checksum, dry_run):
     """Compare two files by generating checksums. Fails if two files differ.

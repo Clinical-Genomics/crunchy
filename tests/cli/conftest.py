@@ -1,16 +1,19 @@
 """Fixtures for CLI tests"""
+
 import tempfile
 from pathlib import Path
 from typing import Any, Generator
 
 import pytest
 
-from crunchy.command import SpringProcess, CramProcess
-from tests.conftest import MockSpringProcess, MockCramProcess
+from crunchy.command import CramProcess, SpringProcess
+from tests.conftest import MockCramProcess, MockSpringProcess
 
 
 @pytest.fixture(name="base_context")
-def fixture_base_context(spring_api: MockSpringProcess, cram_api: MockCramProcess) -> dict[str, Any]:
+def fixture_base_context(
+    spring_api: MockSpringProcess, cram_api: MockCramProcess
+) -> dict[str, Any]:
     """Return base context to use in CLI."""
     return {
         "spring_api": spring_api,
@@ -19,7 +22,9 @@ def fixture_base_context(spring_api: MockSpringProcess, cram_api: MockCramProces
 
 
 @pytest.fixture(name="real_base_context")
-def fixture_real_base_context(real_spring_api: SpringProcess, real_cram_api: CramProcess) -> dict[str, Any]:
+def fixture_real_base_context(
+    real_spring_api: SpringProcess, real_cram_api: CramProcess
+) -> dict[str, Any]:
     """Return real base context to use in CLI."""
     return {
         "spring_api": real_spring_api,
