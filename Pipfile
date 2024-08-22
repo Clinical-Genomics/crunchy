@@ -7,7 +7,7 @@ verify_ssl = true
 click = "*"
 coloredlogs = "*"
 importlib-metadata = "*"
-crunchy = {editable = true, path = "."}
+setuptools = "*"
 
 [dev-packages]
 pytest = "*"
