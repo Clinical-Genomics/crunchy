@@ -30,7 +30,7 @@ the title if not.
 
 
 8. Deploy master to stage:
-    1. Log in to appropriate server `ssh <server.scilifelab.se>`
+    1. Log in to appropriate server `ssh <hasta.scilifelab.se>`
     2. `us`
     3. Request stage environment `paxa` and follow instructions
     4. ```shell
@@ -43,7 +43,7 @@ the title if not.
    
 
 9. Deploy master to production
-     1. Log in to appropriate server `ssh <server.scilifelab.se>`
+     1. Log in to appropriate server `ssh <hasta.scilifelab.se>`
      2. `up`
      3. Make sure the action publishing the most recent version to PyPi is finished.
      4. ```shell
