@@ -8,6 +8,7 @@ click = "*"
 coloredlogs = "*"
 importlib-metadata = "*"
 setuptools = "*"
+zipp = "*"
 
 [dev-packages]
 pytest = "*"
