@@ -25,7 +25,6 @@ lib64
 
 # Installer
 pip-log.txt
-pyproject.toml
 
 # Unit test / coverage reports
 .coverage
