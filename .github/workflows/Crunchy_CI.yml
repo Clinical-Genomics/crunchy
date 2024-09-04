@@ -17,6 +17,11 @@ jobs:
 
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1
+      with:
+        virtualenvs-create: false
+
+    - name: Install Dependencies
+      run: poetry install
 
     - name: Get Conda
       uses: conda-incubator/setup-miniconda@v2.2.0
@@ -34,9 +39,6 @@ jobs:
       shell: bash -l {0}
       run: |
         conda install -c bioconda samtools
-
-    - name: Install Dependencies
-      run: poetry install
 
     - name: Unit tests and coverage
       run: |
