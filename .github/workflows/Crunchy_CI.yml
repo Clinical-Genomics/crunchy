@@ -38,7 +38,7 @@ jobs:
         conda install -c bioconda samtools
 
     - name: Install Dependencies
-      run: poetry install
+      run: poetry install --no-interaction
 
     - name: Unit tests and coverage
       run: |
