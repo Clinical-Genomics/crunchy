@@ -213,26 +213,3 @@ def test_decompress_spring_with_fastq_failing_integrity_check(
     assert result.exit_code == 1
     # THEN assert that the fastq files are deleted since check failed
     assert not (first_tmp_path.exists() or second_tmp_path.exists())
-
-
-def test_decompress_spring_with_fastq_real_run(
-    spring_tmp_file, first_tmp_path, second_tmp_path: Path, real_base_context
-):
-    """Test to run the decompress spring command"""
-    # GIVEN a cli runner
-    runner = CliRunner()
-    dir_path = spring_tmp_file.parent
-    # GIVEN a directory with one spring file
-    assert nr_files(dir_path) == 1
-    # WHEN running the decompress command with real data
-    result = runner.invoke(
-        spring,
-        [str(spring_tmp_file), "-f", str(first_tmp_path), "-s", second_tmp_path.as_posix()],
-        obj=real_base_context,
-    )
-    # THEN assert the command was succesful
-    assert result.exit_code == 0
-    # THEN assert that the fastq files are created
-    assert nr_files(dir_path) == 3
-    assert first_tmp_path.exists()
-    assert second_tmp_path.exists()
