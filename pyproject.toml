@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "crunchy"
+version = "1.0.8"
+description = "Compress fastq files with spring and check the integrity"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "*"
+coloredlogs = "*"
+importlib-metadata = "*"
+setuptools = "*"
+zipp = "*"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+pytest-cov = "*"
+pytest-mock = "*"
+pylint = "*"
+black = "*"
+pre-commit = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
