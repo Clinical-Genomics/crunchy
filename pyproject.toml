@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crunchy"
-version = "1.0.9"
+version = "1.0.10"
 description = "Compress fastq files with spring and check the integrity"
 authors = ["Your Name <you@example.com>"]
 license = "MIT"
