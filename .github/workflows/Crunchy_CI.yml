@@ -5,15 +5,16 @@ jobs:
   test-coverage:
     name: Test Crunchy
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.12"]
-
     steps:
 
     - name: Git checkout
       uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
 
     - name: Install and configure Poetry
       uses: snok/install-poetry@v1
