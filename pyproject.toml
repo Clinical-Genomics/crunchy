@@ -14,7 +14,7 @@ include = [
 
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 click = "*"
 coloredlogs = "*"
 importlib-metadata = "*"
